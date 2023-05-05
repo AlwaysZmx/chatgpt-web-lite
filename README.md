@@ -1,3 +1,3 @@
 # chatgpt-web-lite
-
-Demo地址: https://lite.weblab.top
+## 史上最轻量级的ChatGPT，支持GitHub Page一键部署
+Demo体验: https://lite.weblab.top
