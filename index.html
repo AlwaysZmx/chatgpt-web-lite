@@ -2070,6 +2070,7 @@
             let isOnline = existVoice >= 2;
             let voicesEle = document.getElementById("preSetSpeech");
             console.log(voicesEle)
+            console.log(123)
             // 支持中文和英文
             voices = isOnline ? voices.filter(item => item.Locale.match(/^(zh-|en-)/)) : voices.filter(item => item.lang.match(/^(zh-|en-)/));
             if (isOnline) {
@@ -2096,6 +2097,7 @@
                 option.text = voice.displayName;
                 voicesEle.options.add(option);
             });
+            voicesEle.value = '3'
             voicesEle.onchange = () => {
                 voiceRole[voiceType] = voices[voicesEle.value];
                 localStorage.setItem("voice" + voiceType, voiceRole[voiceType].name);
