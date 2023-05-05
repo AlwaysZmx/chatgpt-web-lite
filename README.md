@@ -14,3 +14,6 @@ Demo体验: https://lite.weblab.top
 + 支持语音合成
 + 支持语音识别
 + More...
+
+## 部署步骤
+直接fork本仓库后，参考GitHub官方文档部署：https://docs.github.com/en/pages/quickstart
