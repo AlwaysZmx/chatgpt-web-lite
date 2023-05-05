@@ -2069,6 +2069,7 @@
         const initVoiceSetting = (voices) => {
             let isOnline = existVoice >= 2;
             let voicesEle = document.getElementById("preSetSpeech");
+            console.log(voicesEle)
             // 支持中文和英文
             voices = isOnline ? voices.filter(item => item.Locale.match(/^(zh-|en-)/)) : voices.filter(item => item.lang.match(/^(zh-|en-)/));
             if (isOnline) {
@@ -2088,7 +2089,7 @@
                     item.displayName = item.name;
                 }
             });
-            voicesEle.innerHTML = "";
+            voicesEle.innerHTML = "3";
             voices.forEach((voice, i) => {
                 let option = document.createElement("option");
                 option.value = i;
