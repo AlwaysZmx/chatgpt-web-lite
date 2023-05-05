@@ -2069,8 +2069,7 @@
         const initVoiceSetting = (voices) => {
             let isOnline = existVoice >= 2;
             let voicesEle = document.getElementById("preSetSpeech");
-            console.log(voicesEle)
-            console.log(123)
+
             // 支持中文和英文
             voices = isOnline ? voices.filter(item => item.Locale.match(/^(zh-|en-)/)) : voices.filter(item => item.lang.match(/^(zh-|en-)/));
             if (isOnline) {
@@ -2090,13 +2089,14 @@
                     item.displayName = item.name;
                 }
             });
-            voicesEle.innerHTML = "3";
+            voicesEle.innerHTML = "";
             voices.forEach((voice, i) => {
                 let option = document.createElement("option");
                 option.value = i;
                 option.text = voice.displayName;
                 voicesEle.options.add(option);
             });
+            // 设置默认的语音输出为Xiaoxiao Online (Natural) - Chinese (Mainland)
             voicesEle.value = '3'
             voicesEle.onchange = () => {
                 voiceRole[voiceType] = voices[voicesEle.value];
