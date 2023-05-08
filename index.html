@@ -24,6 +24,29 @@
             height: 100%;
             margin: 0;
         }
+		
+		li {
+		  line-height: 2.5;
+		}
+		
+		.billingOption {
+			height: 500px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		.loader {
+		    border: 2px solid #f3f3f3;
+		    border-top: 2px solid #3498db;
+		    border-radius: 50%;
+		    width: 24px;
+		    height: 24px;
+		    animation: spin 2s linear infinite;
+		    display: none;
+			width: 50px;
+		    height: 50px;
+		}
 
         .chat_window {
             position: absolute;
@@ -1339,6 +1362,7 @@
                     <div data-id="convOption" class="activeSwitch">对话</div>
                     <div data-id="speechOption">语音合成</div>
                     <div data-id="recOption">语音识别</div>
+					<div data-id="billingOption" onclick="checkOpenAICredit()">账单</div>
                 </div>
                 <div id="convOption">
                     <div class="presetSelect presetModelCls">
@@ -1518,6 +1542,13 @@
                         </div>
                     </div>
                 </div>
+				<div id="billingOption" style="display: none;">
+					<div id="loader" class="loader ml-4" style="display:none;"></div>
+					
+					<div id="billingDetails" style="display: none;">
+					</div>
+					
+				</div>
             </div>
         </div>
         <div class="messages">
@@ -1560,7 +1591,142 @@
         </div>
     </div>
     <link rel="stylesheet" href="//cdn.staticfile.org/notyf/3.10.0/notyf.min.css">
-    <script src="//cdn.staticfile.org/notyf/3.10.0/notyf.min.js"></script>
+	<script src="//cdn.staticfile.org/notyf/3.10.0/notyf.min.js"></script>
+    
+	<!-- 账单查询 -->
+	<script>
+		function showLoader() {
+		    document.getElementById("loader").style.display = "inline-block";
+		}
+		
+		function hideLoader() {
+		    document.getElementById("loader").style.display = "none";
+		}
+		
+		function displayResult(data) {
+		    if (data.status === "success") {
+		        document.getElementById("billingOption").innerHTML = `
+					<ul>
+						<li>总额度：$${data.total_granted}</li>
+						<li>已使用额度：$${parseFloat(data.total_used).toFixed(3)}</li>
+						<li>剩余可用额度：$${parseFloat(data.total_available).toFixed(3)}</li>
+					</ul>
+		        `;
+		    } else {
+		        alert("您的账户已被封禁，请登录OpenAI进行查看。");
+		    }
+			
+			// <div>
+			// 	<button type="button" onclick="checkOpenAICredit()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full ml-4">
+			// 		<span style="display:inline-block; width: 50px;">查询</span>
+			// 	</button>
+			// </div>
+		}
+		
+		function checkOpenAICredit() {
+		    var apiKey = document.getElementById("keyInput").value;
+		
+		    if (!apiKey.startsWith("sk-")) {
+		        alert("无效的API密钥，请检查您的API密钥是否正确。");
+		        return;
+		    }
+		
+		    showLoader();
+		    checkBilling(apiKey)
+		    .then(data => {
+		        displayResult({
+		        status: "success",
+		        total_granted: data[0],
+		        total_used: data[1],
+		        total_available: data[2]
+		        });
+		        hideLoader();
+		    })
+		    .catch(error => {
+		        alert("您的账户可能已被封禁，请登录OpenAI官网进行查看。");
+		        hideLoader();
+		    });
+		}
+		
+		async function checkBilling(apiKey) {
+		  // 计算起始日期和结束日期
+		  const now = new Date();
+		  startDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
+		  const endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+		
+		  // 设置API请求URL和请求头
+		  baseUrl = document.getElementById("apiHostInput").value;
+		  // 查是否订阅
+		  urlSubscription = `${baseUrl}v1/dashboard/billing/subscription`;
+		  // 查普通账单
+		  urlBalance = `${baseUrl}dashboard/billing/credit_grants`;
+		  // 查使用量
+		  urlUsage = `${baseUrl}v1/dashboard/billing/usage?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`;
+		  const headers = {
+		    "Authorization": "Bearer " + apiKey,
+		    "Content-Type": "application/json"
+		  };
+		
+		  try {
+		    // 获取API限额
+		    let response = await fetch(urlSubscription, {headers});
+		    if (!response.ok) {
+		      console.log("您的账户已被封禁，请登录OpenAI进行查看。");
+		      return;
+		    }
+		    const subscriptionData = await response.json();
+		
+		    // 判断是否过期
+		    const timestamp_now = Math.floor(Date.now() / 1000);
+		    const timestamp_expire = subscriptionData.access_until;
+		    if (timestamp_now > timestamp_expire) {
+		        alert("您的账户额度已过期, 请登录OpenAI进行查看。");
+		    }
+		    
+		    const totalAmount = subscriptionData.hard_limit_usd;
+		    const is_subsrcibed = subscriptionData.has_payment_method;
+		
+		    // 获取已使用量
+		    response = await fetch(urlUsage, {headers});
+		    usageData = await response.json();
+		    totalUsage = usageData.total_usage / 100;
+		
+		    // 如果用户绑卡，额度每月会刷新
+		    if(is_subsrcibed) {
+		        // 获取当前月的第一天日期
+		        const day = now.getDate();  // 本月过去的天数
+		        startDate = new Date(now - (day - 1) * 24 * 60 * 60 * 1000); // 本月第一天
+		        urlUsage = `${baseUrl}v1/dashboard/billing/usage?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`; // 查使用量
+		        response = await fetch(urlUsage, {headers});
+		        usageData = await response.json();
+		        totalUsage = usageData.total_usage / 100;
+		    }
+		
+		    // 计算剩余额度
+		    const remaining = totalAmount - totalUsage;
+		
+		    // 输出总用量、总额及余额信息
+		    console.log(`Total Amount: ${totalAmount.toFixed(2)}`);
+		    console.log(`Used: ${totalUsage.toFixed(2)}`);
+		    console.log(`Remaining: ${remaining.toFixed(2)}`);
+		
+		    return [totalAmount, totalUsage, remaining];
+		  } catch (error) {
+		    console.error(error);
+		    alert("您的IP无法访问OpenAI，请在OpenAI服务范围内查询。");
+		    return [null, null, null];
+		  }
+		}
+		
+		function formatDate(date) {
+		  const year = date.getFullYear();
+		  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		  const day = date.getDate().toString().padStart(2, '0');
+		
+		  return `${year}-${month}-${day}`;
+		}
+	</script>
+	
     <script>
         const notyf = new Notyf({
             position: {x: 'center', y: 'top'},
@@ -3587,6 +3753,7 @@
             }
         }
     </script>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <link href="//cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css" rel="stylesheet">
     <link href="//cdn.staticfile.org/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
     <link href="//cdn.staticfile.org/KaTeX/0.16.4/katex.min.css" rel="stylesheet">
