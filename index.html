@@ -3683,7 +3683,7 @@
                 await readChunk();
             } catch (e) {
                 if (e.message.indexOf("aborted") === -1) {
-                    notyf.error("访问接口失败，请检查接口！")
+                    notyf.error("接口访问失败，请检查接口地址或API key是否配置正确！")
                     stopLoading();
                 }
             }
