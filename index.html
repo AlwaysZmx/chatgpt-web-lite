@@ -1543,11 +1543,9 @@
                     </div>
                 </div>
 				<div id="billingOption" style="display: none;">
-					<div id="loader" class="loader ml-4" style="display:none;"></div>
+					<div id="loader" class="loader ml-4" style="display: none;"></div>
 					
-					<div id="billingDetails" style="display: none;">
-					</div>
-					
+					<div id="billingDetails" class="loader ml-4" style="display: none;"></div>
 				</div>
             </div>
         </div>
@@ -1596,7 +1594,12 @@
 	<!-- 账单查询 -->
 	<script>
 		function showLoader() {
-		    document.getElementById("loader").style.display = "inline-block";
+			let load = document.getElementById("loader");
+		    load.style.display = "inline-block";
+			load.style.marginLeft = "120px";
+			load.style.marginRight = "120px";
+			load.style.marginTop = "50px";
+			load.style.marginBottom = "50px";
 		}
 		
 		function hideLoader() {
@@ -1607,9 +1610,9 @@
 		    if (data.status === "success") {
 		        document.getElementById("billingOption").innerHTML = `
 					<ul>
-						<li>总额度：$${data.total_granted}</li>
-						<li>已使用额度：$${parseFloat(data.total_used).toFixed(3)}</li>
-						<li>剩余可用额度：$${parseFloat(data.total_available).toFixed(3)}</li>
+						<li>总额度：$${parseFloat(data.total_granted).toFixed(3)}</li>
+						<li>已使用：$${parseFloat(data.total_used).toFixed(3)}</li>
+						<li>剩余可用：$${parseFloat(data.total_available).toFixed(3)}</li>
 					</ul>
 		        `;
 		    } else {
