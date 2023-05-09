@@ -1613,7 +1613,7 @@
 					</ul>
 		        `;
 		    } else {
-		        alert("您的账户已被封禁，请登录OpenAI进行查看。");
+				console.info("您的账户已被封禁，请登录OpenAI进行查看。")
 		    }
 			
 			// <div>
@@ -1625,11 +1625,15 @@
 		
 		function checkOpenAICredit() {
 		    var apiKey = document.getElementById("keyInput").value;
-		
-		    if (!apiKey.startsWith("sk-")) {
-		        alert("无效的API密钥，请检查您的API密钥是否正确。");
-		        return;
-		    }
+			if (apiKey.trim() === "") {
+				alert("您还没有配置API key。");
+				return;
+			} else {
+				if (!apiKey.startsWith("sk-")) {
+				    alert("无效的API key，请检查您的API key是否配置正确。");
+				    return;
+				}
+			}
 		
 		    showLoader();
 		    checkBilling(apiKey)
@@ -1643,7 +1647,7 @@
 		        hideLoader();
 		    })
 		    .catch(error => {
-		        alert("您的账户可能已被封禁，请登录OpenAI官网进行查看。");
+		        console.info("您的账户可能已被封禁，请登录OpenAI官网进行查看。");
 		        hideLoader();
 		    });
 		}
@@ -1713,7 +1717,7 @@
 		    return [totalAmount, totalUsage, remaining];
 		  } catch (error) {
 		    console.error(error);
-		    alert("您的IP无法访问OpenAI，请在OpenAI服务范围内查询。");
+		    console.info("您的IP无法访问OpenAI，请在OpenAI服务范围内查询。");
 		    return [null, null, null];
 		  }
 		}
