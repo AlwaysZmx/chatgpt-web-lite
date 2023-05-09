@@ -2685,15 +2685,18 @@
             let realMd = document.createElement("div");
             realMd.className = ele.className === "request" ? "requestBody" : "markdown-body";
             ele.appendChild(realMd);
+			
             let mdOption = document.createElement("div");
             mdOption.className = "mdOption";
             ele.appendChild(mdOption);
+			
             if (ele.className !== "request") {
                 mdOption.innerHTML = `<div class="refreshReq">
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>刷新</title><use xlink:href="#refreshIcon" /></svg>
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>继续</title><use xlink:href="#halfRefIcon" /></svg>
                     </div>`
             }
+			
             let optionWidth = existVoice >= 2 ? "96px" : "63px";
             mdOption.innerHTML += `<div class="moreOption" onmouseenter="moreOption(this)">
             <svg class="optionTrigger" width="16" height="16" role="img"><title>选项</title><use xlink:href="#optionIcon" /></svg>
@@ -2821,9 +2824,9 @@
                 let firstIdx = systemRole ? 1 : 0;
                 for (let i = firstIdx; i < data.length; i++) {
                     if (data[i].role === "user") {
-                        createConvEle("request").children[0].textContent = data[i].content;
+                        createConvEle("request").children[0].textContent = '问：' + data[i].content;
                     } else {
-                        createConvEle("response").children[0].innerHTML = md.render(data[i].content) || "<br />";
+                        createConvEle("response").children[0].innerHTML = '答：' + md.render(data[i].content) || "<br />";
                     }
                 }
             }
@@ -3655,7 +3658,7 @@
                                             }
                                             if (progressData) await delay();
                                             progressData += content;
-                                            currentResEle.children[0].innerHTML = md.render(progressData);
+                                            currentResEle.children[0].innerHTML = '答：' +  md.render(progressData);
                                             if (!isRefresh) {
                                                 scrollToBottom();
                                             }
@@ -3717,7 +3720,7 @@
         const generateText = async (message) => {
             loadAction(true);
             let requestEle = createConvEle("request");
-            requestEle.children[0].textContent = message;
+            requestEle.children[0].textContent = '问：' + message;
             data.push({role: "user", content: message});
             if (chatsData[activeChatIdx].name === "新的会话") {
                 if (message.length > 50) {
