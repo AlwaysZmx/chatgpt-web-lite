@@ -20,5 +20,6 @@ Demo体验: https://lite.weblab.top
 直接fork本仓库后，参考GitHub官方文档部署：https://docs.github.com/en/pages/quickstart
 
 ## 免费获取API key
-关注微信公众号，回复关键词【key】
+微信扫码关注公众号，回复关键词【key】即可获取免费的API key，不定期抽取赠送$120额度的key
+
 ![码上行旅](./img/qr.jpg)
