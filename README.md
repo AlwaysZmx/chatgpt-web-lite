@@ -18,3 +18,7 @@ Demo体验: https://lite.weblab.top
 
 ## 部署步骤
 直接fork本仓库后，参考GitHub官方文档部署：https://docs.github.com/en/pages/quickstart
+
+## 免费获取API key
+关注微信公众号，回复关键词【key】
+![码上行旅](./img/qr.jpg)
