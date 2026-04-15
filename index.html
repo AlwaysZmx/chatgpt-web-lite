@@ -232,6 +232,75 @@
             background: #f7f7f8 !important;
         }
 
+        .thinkingBlock {
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            background: #fafafa;
+            overflow: hidden;
+        }
+
+        .thinkingHeader {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            background: #f0f0f0;
+            user-select: none;
+        }
+
+        .thinkingHeader:hover {
+            background: #e8e8e8;
+        }
+
+        .thinkingChevron {
+            display: inline-block;
+            transition: transform 0.2s;
+            font-style: normal;
+        }
+
+        .thinkingBlock.expanded .thinkingChevron {
+            transform: rotate(90deg);
+        }
+
+        .thinkingContent {
+            display: none;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #555;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .thinkingBlock.expanded .thinkingContent {
+            display: block;
+        }
+
+        .thinkingDot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #aaa;
+            animation: thinkPulse 1.2s ease-in-out infinite;
+        }
+
+        .thinkingBlock.done .thinkingDot {
+            animation: none;
+            background: #52c41a;
+        }
+
+        @keyframes thinkPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
         #chatlog .markdown-body>pre {
             overflow-x: auto;
             padding: 10px;
@@ -2643,10 +2712,19 @@
                     if (!loading && chatlog.children[idx].dataset.loading !== "true") {
                         let className = parent.className;
                         if (className == "refreshReq") {
-                            chatlog.children[idx].children[0].innerHTML = "<br />";
+                            chatlog.children[idx].querySelector(".markdown-body").innerHTML = "<br />";
+                            let tb = chatlog.children[idx].querySelector(".thinkingBlock");
+                            if (tb) {
+                                tb.style.display = "none";
+                                tb.className = "thinkingBlock";
+                                tb.querySelector(".thinkingHeader span:last-child").textContent = "深度思考中...";
+                                tb.querySelector(".thinkingContent").textContent = "";
+                            }
                             chatlog.children[idx].dataset.loading = true;
                             idx = systemRole ? idx + 1 : idx;
                             data[idx].content = "";
+                            delete data[idx].thinking;
+                            inThoughtTag = false; thoughtBuf = "";
                             if (idx === currentVoiceIdx) {endSpeak()};
                             loadAction(true);
                             refreshIdx = idx;
@@ -2692,10 +2770,26 @@
             ele.classList.remove("moreOptionHidden");
         }
         const formatMdEle = (ele) => {
+            if (ele.className !== "request") {
+                let thinkDiv = document.createElement("div");
+                thinkDiv.className = "thinkingBlock";
+                thinkDiv.style.display = "none";
+                thinkDiv.innerHTML = `<div class="thinkingHeader">
+                    <i class="thinkingChevron">▶</i>
+                    <span class="thinkingDot"></span>
+                    <span>深度思考中...</span>
+                </div>
+                <div class="thinkingContent"></div>`;
+                thinkDiv.querySelector(".thinkingHeader").onclick = () => {
+                    thinkDiv.classList.toggle("expanded");
+                };
+                ele.appendChild(thinkDiv);
+            }
+
             let realMd = document.createElement("div");
             realMd.className = ele.className === "request" ? "requestBody" : "markdown-body";
             ele.appendChild(realMd);
-			
+
             let mdOption = document.createElement("div");
             mdOption.className = "mdOption";
             ele.appendChild(mdOption);
@@ -2814,6 +2908,8 @@
             formatMdEle(div);
             return div;
         }
+        const getBodyEle = (ele) => ele.querySelector(".markdown-body, .requestBody");
+        const getOptionEle = (ele) => ele.querySelector(".mdOption");
         const activeChat = () => {
             data = chatsData[activeChatIdx]["data"];
             Array.from(document.getElementsByClassName("activeChatLi")).forEach(item => {
@@ -2834,9 +2930,17 @@
                 let firstIdx = systemRole ? 1 : 0;
                 for (let i = firstIdx; i < data.length; i++) {
                     if (data[i].role === "user") {
-                        createConvEle("request").children[0].textContent = '问：' + data[i].content;
+                        getBodyEle(createConvEle("request")).textContent = '问：' + data[i].content;
                     } else {
-                        createConvEle("response").children[0].innerHTML = '答：' + md.render(data[i].content) || "<br />";
+                        let resEle = createConvEle("response");
+                        getBodyEle(resEle).innerHTML = '答：' + md.render(data[i].content) || "<br />";
+                        if (data[i].thinking) {
+                            let tb = resEle.querySelector(".thinkingBlock");
+                            tb.style.display = "block";
+                            tb.classList.add("done");
+                            tb.querySelector(".thinkingHeader span:last-child").textContent = "思考过程";
+                            tb.querySelector(".thinkingContent").textContent = data[i].thinking;
+                        }
                     }
                 }
             }
@@ -3122,7 +3226,7 @@
         let currentVoiceIdx;
         const resetSpeakIcon = () => {
             if (currentVoiceIdx !== void 0) {
-                chatlog.children[systemRole ? currentVoiceIdx - 1 : currentVoiceIdx].children[1].lastChild.className = "readyVoice";
+                chatlog.children[systemRole ? currentVoiceIdx - 1 : currentVoiceIdx].querySelector(".mdOption").lastChild.className = "readyVoice";
             }
         }
         const endSpeak = () => {
@@ -3309,7 +3413,7 @@
                 else {return endSpeak()}
             };
             let type = data[idx].role === "user" ? 0 : 1;
-            chatlog.children[systemRole ? idx - 1 : idx].children[1].lastChild.className = "pauseVoice";
+            chatlog.children[systemRole ? idx - 1 : idx].querySelector(".mdOption").lastChild.className = "pauseVoice";
             let content = data[idx].content;
             let volume = voiceVolume[type];
             let rate = voiceRate[type];
@@ -3420,8 +3524,8 @@
             }
         }
         const autoSpeechEvent = (content, ele, force = false, end = false) => {
-            if (ele.children[1].lastChild.className === "readyVoice") {
-                ele.children[1].lastChild.className = "pauseVoice";
+            if (ele.querySelector(".mdOption").lastChild.className === "readyVoice") {
+                ele.querySelector(".mdOption").lastChild.className = "pauseVoice";
             }
             if (existVoice >= 2) {
                 voiceContentQuene.push(content);
@@ -3557,8 +3661,56 @@
         let refreshIdx;
         let currentResEle;
         let progressData = "";
+        let progressThinking = "";
+        let inThoughtTag = false;   // 当前是否处于 <thought> 标签内
+        let thoughtBuf = "";        // 累积未匹配完的标签片段
+        const parseThoughtContent = (chunk, isFinal = false) => {
+            let text = thoughtBuf + chunk;
+            thoughtBuf = "";
+            let visibleText = "";
+            let thoughtText = "";
+
+            while (text.length) {
+                if (inThoughtTag) {
+                    let endIdx = text.indexOf("</thought>");
+                    if (endIdx === -1) {
+                        // 只有当尾部可能是 </thought> 的前缀时才 hold back
+                        let ltIdx = text.lastIndexOf("<");
+                        if (!isFinal && ltIdx !== -1 && ltIdx >= text.length - 9) {
+                            thoughtText += text.slice(0, ltIdx);
+                            thoughtBuf = text.slice(ltIdx);
+                        } else {
+                            thoughtText += text;
+                        }
+                        break;
+                    }
+                    thoughtText += text.slice(0, endIdx);
+                    text = text.slice(endIdx + 10);
+                    inThoughtTag = false;
+                } else {
+                    let startIdx = text.indexOf("<thought>");
+                    if (startIdx === -1) {
+                        // 只有当尾部可能是 <thought> 的前缀时才 hold back
+                        let ltIdx = text.lastIndexOf("<");
+                        if (!isFinal && ltIdx !== -1 && ltIdx >= text.length - 8) {
+                            visibleText += text.slice(0, ltIdx);
+                            thoughtBuf = text.slice(ltIdx);
+                        } else {
+                            visibleText += text;
+                        }
+                        break;
+                    }
+                    visibleText += text.slice(0, startIdx);
+                    text = text.slice(startIdx + 9);
+                    inThoughtTag = true;
+                }
+            }
+
+            return {thoughtText, visibleText};
+        };
         const streamGen = async (long) => {
             controller = new AbortController();
+            if (!long) { progressThinking = ""; inThoughtTag = false; thoughtBuf = ""; }
             controllerId = setTimeout(() => {
                 notyf.error("请求超时，请稍后重试！");
                 stopLoading();
@@ -3570,7 +3722,7 @@
                 currentResEle = chatlog.children[systemRole ? refreshIdx - 1 : refreshIdx];
             } else if (!currentResEle) {
                 currentResEle = createConvEle("response");
-                currentResEle.children[0].innerHTML = "<br />";
+                getBodyEle(currentResEle).innerHTML = "<br />";
                 currentResEle.dataset.loading = true;
                 scrollToBottom();
             }
@@ -3647,30 +3799,69 @@
                                     if (payload.choices[0].finish_reason) {
                                         let lenStop = payload.choices[0].finish_reason === "length";
                                         let longReplyFlag = enableLongReply && lenStop;
-                                        if (!enableLongReply && lenStop) {currentResEle.children[1].children[0].className = "halfRefReq"}
-                                        else {currentResEle.children[1].children[0].className = "refreshReq"};
+                                        if (!enableLongReply && lenStop) {getOptionEle(currentResEle).children[0].className = "halfRefReq"}
+                                        else {getOptionEle(currentResEle).children[0].className = "refreshReq"};
                                         if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
                                             let voiceText = longReplyFlag ? "" : progressData.slice(autoVoiceIdx), stop = !longReplyFlag;
                                             autoSpeechEvent(voiceText, currentResEle, false, stop);
                                         }
                                         break;
                                     } else {
-                                        let content = payload.choices[0].delta.content;
-                                        if (content) {
-                                            if (!progressData && !content.trim()) continue;
-                                            if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
-                                                let spliter = content.match(/\.|\?|!|。|？|！|\n/);
-                                                if (spliter) {
-                                                    let voiceText = progressData.slice(autoVoiceIdx) + content.slice(0, spliter.index + 1);
-                                                    autoVoiceIdx += voiceText.length;
-                                                    autoSpeechEvent(voiceText, currentResEle);
+                                        let delta = payload.choices[0].delta;
+                                        // 处理思考内容（DeepSeek: reasoning_content，Claude 独立字段: thinking）
+                                        let thinkingChunk = delta.reasoning_content || (delta.thinking !== undefined ? delta.thinking : null);
+                                        if (thinkingChunk) {
+                                            progressThinking += thinkingChunk;
+                                            let tb = currentResEle.querySelector(".thinkingBlock");
+                                            if (tb) {
+                                                if (tb.style.display === "none") {
+                                                    tb.style.display = "block";
+                                                    tb.classList.add("expanded");
+                                                }
+                                                tb.querySelector(".thinkingContent").textContent = progressThinking;
+                                                if (!isRefresh) scrollToBottom();
+                                            }
+                                        }
+                                        let rawContent = delta.content;
+                                        if (rawContent) {
+                                            // 解析内嵌 <thought>...</thought> 标签
+                                            let {thoughtText, visibleText} = parseThoughtContent(rawContent);
+                                            if (thoughtText) {
+                                                progressThinking += thoughtText;
+                                                let tb = currentResEle.querySelector(".thinkingBlock");
+                                                if (tb) {
+                                                    if (tb.style.display === "none") {
+                                                        tb.style.display = "block";
+                                                        tb.classList.add("expanded");
+                                                    }
+                                                    tb.querySelector(".thinkingContent").textContent = progressThinking;
                                                 }
                                             }
-                                            if (progressData) await delay();
-                                            progressData += content;
-                                            currentResEle.children[0].innerHTML = '答：' +  md.render(progressData);
-                                            if (!isRefresh) {
-                                                scrollToBottom();
+                                            let content = visibleText;
+                                            if (content) {
+                                                // 思考阶段结束，标记为 done
+                                                if (progressThinking) {
+                                                    let tb = currentResEle.querySelector(".thinkingBlock");
+                                                    if (tb && !tb.classList.contains("done")) {
+                                                        tb.classList.add("done");
+                                                        tb.querySelector(".thinkingHeader span:last-child").textContent = "思考完毕";
+                                                    }
+                                                }
+                                                if (!progressData && !content.trim()) continue;
+                                                if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
+                                                    let spliter = content.match(/\.|\?|!|。|？|！|\n/);
+                                                    if (spliter) {
+                                                        let voiceText = progressData.slice(autoVoiceIdx) + content.slice(0, spliter.index + 1);
+                                                        autoVoiceIdx += voiceText.length;
+                                                        autoSpeechEvent(voiceText, currentResEle);
+                                                    }
+                                                }
+                                                if (progressData) await delay();
+                                                progressData += content;
+                                                getBodyEle(currentResEle).innerHTML = '答：' +  md.render(progressData);
+                                                if (!isRefresh) {
+                                                    scrollToBottom();
+                                                }
                                             }
                                         }
                                     }
@@ -3678,12 +3869,28 @@
                             }
                             return readChunk();
                         } else {
+                            // flush 残留在 thoughtBuf 里的尾部内容
+                            if (thoughtBuf) {
+                                let {thoughtText, visibleText} = parseThoughtContent("", true);
+                                if (thoughtText) progressThinking += thoughtText;
+                                if (visibleText) {
+                                    progressData += visibleText;
+                                    getBodyEle(currentResEle).innerHTML = '答：' + md.render(progressData);
+                                }
+                            }
                             if (isRefresh) {
                                 data[refreshIdx].content = progressData;
+                                if (progressThinking) data[refreshIdx].thinking = progressThinking;
                                 if (longReplyFlag) return streamGen(true);
                             } else {
-                                if (long) {data[data.length - 1].content = progressData}
-                                else {data.push({role: "assistant", content: progressData})}
+                                if (long) {
+                                    data[data.length - 1].content = progressData;
+                                    if (progressThinking) data[data.length - 1].thinking = progressThinking;
+                                } else {
+                                    let entry = {role: "assistant", content: progressData};
+                                    if (progressThinking) entry.thinking = progressThinking;
+                                    data.push(entry);
+                                }
                                 if (longReplyFlag) return streamGen(true);
                             }
                             stopLoading(false);
@@ -3711,12 +3918,28 @@
                 controller.abort();
                 if (controllerId) clearTimeout(controllerId);
                 if (delayId) clearTimeout(delayId);
-                if (refreshIdx !== void 0) {data[refreshIdx].content = progressData}
-                else if (data[data.length - 1].role === "assistant") {data[data.length - 1].content = progressData}
-                else {data.push({role: "assistant", content: progressData})}
+                if (refreshIdx !== void 0) {
+                    data[refreshIdx].content = progressData;
+                    if (progressThinking) data[refreshIdx].thinking = progressThinking;
+                } else if (data[data.length - 1].role === "assistant") {
+                    data[data.length - 1].content = progressData;
+                    if (progressThinking) data[data.length - 1].thinking = progressThinking;
+                } else {
+                    let entry = {role: "assistant", content: progressData};
+                    if (progressThinking) entry.thinking = progressThinking;
+                    data.push(entry);
+                }
                 if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx && progressData.length) {
                     let voiceText = progressData.slice(autoVoiceIdx);
                     autoSpeechEvent(voiceText, currentResEle, false, true);
+                }
+                // 中断时也标记思考完成
+                if (progressThinking && currentResEle) {
+                    let tb = currentResEle.querySelector(".thinkingBlock");
+                    if (tb) {
+                        tb.classList.add("done");
+                        tb.querySelector(".thinkingHeader span:last-child").textContent = "思考过程";
+                    }
                 }
             }
             updateChats();
@@ -3725,12 +3948,15 @@
             currentResEle.dataset.loading = false;
             currentResEle = null;
             progressData = "";
+            progressThinking = "";
+            inThoughtTag = false;
+            thoughtBuf = "";
             loadAction(false);
         }
         const generateText = async (message) => {
             loadAction(true);
             let requestEle = createConvEle("request");
-            requestEle.children[0].textContent = '问：' + message;
+            getBodyEle(requestEle).textContent = '问：' + message;
             data.push({role: "user", content: message});
             if (chatsData[activeChatIdx].name === "新的会话") {
                 if (message.length > 50) {
