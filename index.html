@@ -367,6 +367,95 @@
             opacity: 1;
         }
 
+        /* HTML 预览按钮样式 */
+        .u-mdic-preview-btn {
+            position: relative;
+            top: 0;
+            right: 0;
+            padding: 3px 6px;
+            border: 0;
+            border-radius: 3px;
+            background: none;
+            font-family: system-ui;
+            font-size: 12px;
+            line-height: 18px;
+            color: #6c63ff;
+            opacity: 0.45;
+            outline: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-right: 4px;
+        }
+
+        .u-mdic-preview-btn:hover {
+            opacity: 1;
+        }
+
+        /* HTML 预览浮层 */
+        #htmlPreviewMask {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(30, 31, 46, 0.6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        #htmlPreviewMask.active {
+            display: flex;
+        }
+
+        #htmlPreviewBox {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 16px 48px rgba(108, 99, 255, 0.18);
+            width: 90vw;
+            height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #htmlPreviewBar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #f4f5fb;
+            border-bottom: 1px solid #ddddf0;
+            flex-shrink: 0;
+        }
+
+        #htmlPreviewBar span {
+            font-size: 14px;
+            color: #7b7d9a;
+            font-weight: 500;
+        }
+
+        #htmlPreviewBar button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #7b7d9a;
+            font-size: 20px;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        #htmlPreviewBar button:hover {
+            background: #eeeeff;
+            color: #5a52e0;
+        }
+
+        #htmlPreviewFrame {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+
         #stopChat {
             display: none;
             margin: 0 auto;
@@ -1352,6 +1441,15 @@
 </head>
 
 <body>
+    <div id="htmlPreviewMask" onclick="if(event.target===this) closeHtmlPreview()">
+        <div id="htmlPreviewBox">
+            <div id="htmlPreviewBar">
+                <span>HTML 预览</span>
+                <button type="button" onclick="closeHtmlPreview()">×</button>
+            </div>
+            <iframe id="htmlPreviewFrame" sandbox=""></iframe>
+        </div>
+    </div>
     <div style="display: none">
         <svg>
             <symbol viewBox="0 0 24 24" id="optionIcon">
@@ -2737,6 +2835,19 @@
             document.execCommand("copy");
             document.body.removeChild(input);
         }
+        const previewHtml = (rawCode) => {
+            const mask = document.getElementById("htmlPreviewMask");
+            const frame = document.getElementById("htmlPreviewFrame");
+            if (!mask || !frame) return;
+            mask.classList.add("active");
+            frame.srcdoc = rawCode;
+        }
+        const closeHtmlPreview = () => {
+            const mask = document.getElementById("htmlPreviewMask");
+            const frame = document.getElementById("htmlPreviewFrame");
+            if (mask) mask.classList.remove("active");
+            if (frame) frame.srcdoc = "";
+        }
         const enhanceCode = (render, options = {}) => (...args) => {
             /* args = [tokens, idx, options, env, slf] */
             const {
@@ -2746,13 +2857,20 @@
                 showCodeLanguage = true, // false | show code language
             } = options;
             const [tokens = {}, idx = 0] = args;
-            const cont = strEncode(tokens[idx].content || "");
+            const token = tokens[idx] || {};
+            const rawContent = token.content || "";
+            const cont = strEncode(rawContent);
             const originResult = render.apply(this, args);
+            const codeLang = (token.info || x.getCodeLang(originResult) || "").trim().toLowerCase();
             const langFrag = showCodeLanguage ? getCodeLangFragment(originResult) : "";
+            const previewBtn = (codeLang === "html" || codeLang === "htm")
+                ? `<button class="u-mdic-preview-btn" onclick="previewHtml(this.nextElementSibling.dataset.mdicContent)">预览</button>`
+                : "";
             const tpls = [
                 '<div class="m-mdic-copy-wrapper">',
                 `${langFrag}`,
                 `<div class="u-mdic-copy-notify" style="display:none;">${successText}</div>`,
+                `${previewBtn}`,
                 '<button ',
                 'class="u-mdic-copy-btn j-mdic-copy-btn" ',
                 `data-mdic-content="${cont}" `,
