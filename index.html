@@ -967,6 +967,88 @@
             opacity: 1;
         }
 
+        /* 语言选择卡片 */
+        #langCards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .langCard {
+            border: 1px solid #ddddf0;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .langCard:hover {
+            border-color: #a78bfa;
+        }
+
+        .langCard.activeLang {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 2px rgba(108,99,255,0.12);
+        }
+
+        .langFlag {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .langInfo {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .langName {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e1f2e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .langCode {
+            font-size: 11px;
+            color: #7b7d9a;
+            margin-top: 1px;
+        }
+
+        .langCheck {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #ddddf0;
+            flex-shrink: 0;
+            position: relative;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .langCard.activeLang .langCheck {
+            border-color: #6c63ff;
+            background: #6c63ff;
+        }
+
+        .langCard.activeLang .langCheck::after {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: 1px;
+            width: 5px;
+            height: 8px;
+            border: 2px solid #fff;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg);
+        }
+
         .fetchModelsBtn {
             display: inline-flex;
             align-items: center;
@@ -1954,6 +2036,7 @@
                     <div data-id="convOption">对话</div>
                     <div data-id="speechOption">语音合成</div>
                     <div data-id="recOption">语音识别</div>
+                    <div data-id="langOption">语言</div>
 					<div data-id="billingOption" onclick="checkOpenAICredit()" style="display:none;">账单</div>
                 </div>
                 <div id="setDialogContent">
@@ -1989,33 +2072,6 @@
                     </div>
                 </div>
                 <div id="convOption" style="display:none;">
-                    <div class="presetSelect presetModelCls">
-                        <label for="preSetModel">GPT模型</label>
-                        <select id="preSetModel">
-			                <option value="gemma-4-31b-it">gemma-4-31b-it</option>
-                            <option value="gemma-4-26b-a4b-it">gemma-4-26b-a4b-it</option>
-                            <option value="gpt-5.4">gpt-5.4</option>
-                            <option value="gpt-5.4-mini">gpt-5.4-mini</option>
-							<option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
-							<option value="gemini-3-flash">gemini-3-flash</option>
-							<option value="gemini-3-pro-high">gemini-3-pro-high</option>
-							<option value="gemini-3-pro-low">gemini-3-pro-low</option>
-							<option value="gemini-3.1-pro-high">gemini-3.1-pro-high</option>
-							<option value="gemini-3.1-pro-low">gemini-3.1-pro-low</option>
-							<option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
-							<option value="gpt-oss-120b-medium">gpt-oss-120b-medium</option>
-			
-                        </select>
-                    </div>
-                    <div>
-                        <div>自定义接口</div>
-                        <input class="inputTextClass" placeholder="https://example.com/" value ="https://openai-proxy.weblab.top/" id="apiHostInput" />
-                    </div>
-                    <div>
-                        <div>自定义API key</div>
-                        <input class="inputTextClass" type="password" placeholder="sk-xxxxxx" id="keyInput"
-                            style="-webkit-text-security: disc;" />
-                    </div>
                     <div>
                         <div class="justSetLine presetSelect">
                             <div>系统角色</div>
@@ -2194,6 +2250,10 @@
 					<div id="loader" class="loader ml-4" style="display: none;"></div>
 					<div id="billingDetails" class="loader ml-4" style="display: none;"></div>
 				</div>
+                <div id="langOption" style="display:none;">
+                    <div id="langPanelHint" style="font-size:12px;color:#7b7d9a;margin-bottom:10px;">选择界面语言，立即生效</div>
+                    <div id="langCards"></div>
+                </div>
                 </div>
                 </div>
             </div>
@@ -2276,7 +2336,7 @@
 		}
 		
 		function checkOpenAICredit() {
-		    var apiKey = document.getElementById("keyInput").value;
+		    var apiKey = customAPIKey || "";
 			if (apiKey.trim() === "") {
 				alert("您还没有配置API key。");
 				return;
@@ -2311,7 +2371,7 @@
 		  const endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 		
 		  // 设置API请求URL和请求头
-		  baseUrl = document.getElementById("apiHostInput").value;
+		  baseUrl = apiHost;
 		  // 查是否订阅
 		  urlSubscription = `${baseUrl}v1/dashboard/billing/subscription`;
 		  // 查普通账单
@@ -3429,7 +3489,8 @@
             return chatEle;
         };
         const addNewChat = () => {
-            let chat = {name: "新的会话", data: []};
+            const t = TRANSLATIONS[currentLang] || TRANSLATIONS['zh-CN'];
+            let chat = {name: t.newChatTitle, data: []};
             chatsData.push(chat);
             updateChats();
         };
@@ -3623,43 +3684,6 @@
             if (loading) stopLoading();
         };
         const initSetting = () => {
-            const modelEle = document.getElementById("preSetModel");
-            let localModel = localStorage.getItem("modelVersion");
-            if (localModel) {
-                modelVersion = localModel;
-                modelEle.value = localModel;
-            }
-            modelEle.onchange = () => {
-                modelVersion = modelEle.value;
-                localStorage.setItem("modelVersion", modelVersion);
-            }
-            modelEle.dispatchEvent(new Event("change"));
-            const apiHostEle = document.getElementById("apiHostInput");
-            let localApiHost = localStorage.getItem("APIHost");
-            if (localApiHost) {
-                apiHost = localApiHost;
-                apiHostEle.value = localApiHost;
-            }
-            apiHostEle.onchange = () => {
-                apiHost = apiHostEle.value;
-                if (apiHost.length && !apiHost.endsWith("/")) {
-                    apiHost += "/";
-                    apiHostEle.value = apiHost;
-                }
-                localStorage.setItem("APIHost", apiHost);
-            }
-            apiHostEle.dispatchEvent(new Event("change"));
-            const keyEle = document.getElementById("keyInput");
-            let localKey = localStorage.getItem("APIKey");
-            if (localKey) {
-                customAPIKey = localKey;
-                keyEle.value = localKey;
-            }
-            keyEle.onchange = () => {
-                customAPIKey = keyEle.value;
-                localStorage.setItem("APIKey", customAPIKey);
-            }
-            keyEle.dispatchEvent(new Event("change"));
             if (systemRole === void 0) {
                 let localSystem = localStorage.getItem("system");
                 if (localSystem) {
@@ -3756,6 +3780,312 @@
             longEle.dispatchEvent(new Event("change"));
         };
         // ── 供应商配置 ──────────────────────────────────────────────────
+        // ── i18n ──────────────────────────────────────────────────────────
+        const TRANSLATIONS = {
+            'zh-CN': {
+                langName:'简体中文', langFlag:'🇨🇳',
+                newChat:'新建会话', newChatTitle:'新的会话', send:'发送', stop:'停止',
+                inputPlaceholder:'来问点什么吧', clearConvTitle:'清空会话',
+                htmlPreview:'HTML 预览', settingsTitle:'设置', settingsSvgTitle:'设置',
+                tabModel:'模型', tabConv:'对话', tabSpeech:'语音合成',
+                tabRec:'语音识别', tabLang:'语言', tabBilling:'账单',
+                providerHint:'选择供应商，自动填充接口地址和模型列表',
+                apiKeyLabel:'API Key', apiKeyPlaceholder:'输入 API Key',
+                modelIdLabel:'模型 ID', fetchModelsTitle:'从供应商接口获取最新模型列表',
+                fetchModelsBtnText:'获取模型列表', modelIdPlaceholder:'输入或选择模型 ID',
+                apiUrlLabel:'接口地址', openaiCompat:'(OpenAI 兼容格式)',
+                applyBtn:'应用', appliedTip:'已应用 ✓',
+                sysRoleLabel:'系统角色', presetRoleLabel:'预设角色',
+                sysRolePlaceholder:'你是一个乐于助人的助手，尽量简明扼要地回答',
+                personality:'角色性格', personalityLow:'准确严谨', personalityHigh:'灵活创新',
+                quality:'回答质量', qualityLow:'重复刻板', qualityHigh:'胡言乱语',
+                typeSpeed:'打字机速度', slow:'慢', fast:'快',
+                contChat:'连续对话', longReply:'长回复',
+                exportChat:'导出', importChat:'导入', clearChat:'清空',
+                speechService:'语音合成服务', loadingVoice:'加载语音',
+                voiceType:'语音类型', questionVoice:'提问语音', answerVoice:'回答语音',
+                voiceStyle:'风格', voiceRole:'角色',
+                volume:'音量', low:'低', high:'高',
+                speechRate:'语速', pitch:'音调', flat:'平淡', varied:'起伏',
+                contRead:'连续朗读', autoRead:'自动朗读',
+                noRecTip:'当前环境不支持语音识别，请尝试使用chrome内核浏览器或重新部署https页面。',
+                recLang:'语言', recDialect:'方言',
+                langPanelHint:'选择界面语言，立即生效',
+            },
+            'en-US': {
+                langName:'English', langFlag:'🇺🇸',
+                newChat:'New Chat', newChatTitle:'New Chat', send:'Send', stop:'Stop',
+                inputPlaceholder:'Ask me anything…', clearConvTitle:'Clear Chat',
+                htmlPreview:'HTML Preview', settingsTitle:'Settings', settingsSvgTitle:'Settings',
+                tabModel:'Models', tabConv:'Chat', tabSpeech:'Speech',
+                tabRec:'Voice', tabLang:'Language', tabBilling:'Billing',
+                providerHint:'Select a provider to auto-fill API endpoint and model list',
+                apiKeyLabel:'API Key', apiKeyPlaceholder:'Enter API Key',
+                modelIdLabel:'Model ID', fetchModelsTitle:'Fetch latest model list from provider API',
+                fetchModelsBtnText:'Fetch Models', modelIdPlaceholder:'Enter or select model ID',
+                apiUrlLabel:'API Endpoint', openaiCompat:'(OpenAI compatible)',
+                applyBtn:'Apply', appliedTip:'Applied ✓',
+                sysRoleLabel:'System Role', presetRoleLabel:'Preset',
+                sysRolePlaceholder:'You are a helpful assistant. Please be concise.',
+                personality:'Personality', personalityLow:'Precise', personalityHigh:'Creative',
+                quality:'Response Quality', qualityLow:'Repetitive', qualityHigh:'Random',
+                typeSpeed:'Typing Speed', slow:'Slow', fast:'Fast',
+                contChat:'Context Memory', longReply:'Long Reply',
+                exportChat:'Export', importChat:'Import', clearChat:'Clear',
+                speechService:'Speech Service', loadingVoice:'Loading Voice',
+                voiceType:'Voice Type', questionVoice:'Question Voice', answerVoice:'Answer Voice',
+                voiceStyle:'Style', voiceRole:'Role',
+                volume:'Volume', low:'Low', high:'High',
+                speechRate:'Rate', pitch:'Pitch', flat:'Flat', varied:'Varied',
+                contRead:'Continuous Read', autoRead:'Auto Read',
+                noRecTip:'Voice recognition is not supported. Please use a Chromium browser or redeploy with HTTPS.',
+                recLang:'Language', recDialect:'Dialect',
+                langPanelHint:'Select language, takes effect immediately',
+            },
+            'zh-TW': {
+                langName:'繁體中文', langFlag:'🇹🇼',
+                newChat:'新建會話', newChatTitle:'新的會話', send:'發送', stop:'停止',
+                inputPlaceholder:'來問點什麼吧', clearConvTitle:'清空會話',
+                htmlPreview:'HTML 預覽', settingsTitle:'設定', settingsSvgTitle:'設定',
+                tabModel:'模型', tabConv:'對話', tabSpeech:'語音合成',
+                tabRec:'語音辨識', tabLang:'語言', tabBilling:'帳單',
+                providerHint:'選擇供應商，自動填入接口地址和模型清單',
+                apiKeyLabel:'API Key', apiKeyPlaceholder:'輸入 API Key',
+                modelIdLabel:'模型 ID', fetchModelsTitle:'從供應商接口取得最新模型清單',
+                fetchModelsBtnText:'取得模型清單', modelIdPlaceholder:'輸入或選擇模型 ID',
+                apiUrlLabel:'接口地址', openaiCompat:'(OpenAI 相容格式)',
+                applyBtn:'套用', appliedTip:'已套用 ✓',
+                sysRoleLabel:'系統角色', presetRoleLabel:'預設角色',
+                sysRolePlaceholder:'你是一個樂於助人的助手，盡量簡明扼要地回答',
+                personality:'角色性格', personalityLow:'準確嚴謹', personalityHigh:'靈活創新',
+                quality:'回答品質', qualityLow:'重複刻板', qualityHigh:'胡言亂語',
+                typeSpeed:'打字機速度', slow:'慢', fast:'快',
+                contChat:'連續對話', longReply:'長回覆',
+                exportChat:'匯出', importChat:'匯入', clearChat:'清空',
+                speechService:'語音合成服務', loadingVoice:'載入語音',
+                voiceType:'語音類型', questionVoice:'提問語音', answerVoice:'回答語音',
+                voiceStyle:'風格', voiceRole:'角色',
+                volume:'音量', low:'低', high:'高',
+                speechRate:'語速', pitch:'音調', flat:'平淡', varied:'起伏',
+                contRead:'連續朗讀', autoRead:'自動朗讀',
+                noRecTip:'目前環境不支援語音辨識，請使用Chrome核心瀏覽器或重新部署https頁面。',
+                recLang:'語言', recDialect:'方言',
+                langPanelHint:'選擇介面語言，立即生效',
+            },
+            'ja-JP': {
+                langName:'日本語', langFlag:'🇯🇵',
+                newChat:'新しいチャット', newChatTitle:'新しいチャット', send:'送信', stop:'停止',
+                inputPlaceholder:'質問してください…', clearConvTitle:'チャットをクリア',
+                htmlPreview:'HTMLプレビュー', settingsTitle:'設定', settingsSvgTitle:'設定',
+                tabModel:'モデル', tabConv:'チャット', tabSpeech:'音声合成',
+                tabRec:'音声入力', tabLang:'言語', tabBilling:'請求',
+                providerHint:'プロバイダーを選択してAPIエンドポイントとモデルリストを自動入力',
+                apiKeyLabel:'API Key', apiKeyPlaceholder:'API Keyを入力',
+                modelIdLabel:'モデルID', fetchModelsTitle:'プロバイダーから最新モデルリストを取得',
+                fetchModelsBtnText:'モデルを取得', modelIdPlaceholder:'モデルIDを入力または選択',
+                apiUrlLabel:'APIエンドポイント', openaiCompat:'(OpenAI互換)',
+                applyBtn:'適用', appliedTip:'適用済み ✓',
+                sysRoleLabel:'システムロール', presetRoleLabel:'プリセット',
+                sysRolePlaceholder:'あなたは役に立つアシスタントです。簡潔に答えてください。',
+                personality:'性格', personalityLow:'正確', personalityHigh:'創造的',
+                quality:'回答品質', qualityLow:'繰り返し', qualityHigh:'ランダム',
+                typeSpeed:'タイピング速度', slow:'遅い', fast:'速い',
+                contChat:'会話継続', longReply:'長い返信',
+                exportChat:'エクスポート', importChat:'インポート', clearChat:'クリア',
+                speechService:'音声合成サービス', loadingVoice:'音声を読み込み中',
+                voiceType:'音声タイプ', questionVoice:'質問音声', answerVoice:'回答音声',
+                voiceStyle:'スタイル', voiceRole:'ロール',
+                volume:'音量', low:'低', high:'高',
+                speechRate:'速度', pitch:'ピッチ', flat:'フラット', varied:'変化',
+                contRead:'連続読み上げ', autoRead:'自動読み上げ',
+                noRecTip:'この環境では音声認識がサポートされていません。Chromeを使用するかHTTPSで配置してください。',
+                recLang:'言語', recDialect:'方言',
+                langPanelHint:'言語を選択すると即時に反映されます',
+            },
+            'ko-KR': {
+                langName:'한국어', langFlag:'🇰🇷',
+                newChat:'새 대화', newChatTitle:'새 대화', send:'전송', stop:'중지',
+                inputPlaceholder:'무엇이든 물어보세요…', clearConvTitle:'대화 지우기',
+                htmlPreview:'HTML 미리보기', settingsTitle:'설정', settingsSvgTitle:'설정',
+                tabModel:'모델', tabConv:'대화', tabSpeech:'음성합성',
+                tabRec:'음성입력', tabLang:'언어', tabBilling:'결제',
+                providerHint:'공급업체를 선택하면 API 엔드포인트와 모델 목록이 자동으로 입력됩니다',
+                apiKeyLabel:'API Key', apiKeyPlaceholder:'API Key 입력',
+                modelIdLabel:'모델 ID', fetchModelsTitle:'공급업체 API에서 최신 모델 목록 가져오기',
+                fetchModelsBtnText:'모델 가져오기', modelIdPlaceholder:'모델 ID 입력 또는 선택',
+                apiUrlLabel:'API 엔드포인트', openaiCompat:'(OpenAI 호환)',
+                applyBtn:'적용', appliedTip:'적용됨 ✓',
+                sysRoleLabel:'시스템 역할', presetRoleLabel:'프리셋',
+                sysRolePlaceholder:'당신은 유용한 어시스턴트입니다. 간결하게 답변해 주세요.',
+                personality:'성격', personalityLow:'정확', personalityHigh:'창의적',
+                quality:'응답 품질', qualityLow:'반복적', qualityHigh:'무작위',
+                typeSpeed:'타이핑 속도', slow:'느림', fast:'빠름',
+                contChat:'대화 이어가기', longReply:'긴 답변',
+                exportChat:'내보내기', importChat:'가져오기', clearChat:'지우기',
+                speechService:'음성 합성 서비스', loadingVoice:'음성 로드 중',
+                voiceType:'음성 유형', questionVoice:'질문 음성', answerVoice:'답변 음성',
+                voiceStyle:'스타일', voiceRole:'역할',
+                volume:'볼륨', low:'낮음', high:'높음',
+                speechRate:'속도', pitch:'피치', flat:'평탄', varied:'다양',
+                contRead:'연속 읽기', autoRead:'자동 읽기',
+                noRecTip:'이 환경에서는 음성 인식이 지원되지 않습니다. Chrome을 사용하거나 HTTPS로 배포해 주세요.',
+                recLang:'언어', recDialect:'방언',
+                langPanelHint:'언어를 선택하면 즉시 적용됩니다',
+            },
+            'fr-FR': {
+                langName:'Français', langFlag:'🇫🇷',
+                newChat:'Nouveau chat', newChatTitle:'Nouveau chat', send:'Envoyer', stop:'Arrêter',
+                inputPlaceholder:'Posez votre question…', clearConvTitle:'Effacer la conversation',
+                htmlPreview:'Aperçu HTML', settingsTitle:'Paramètres', settingsSvgTitle:'Paramètres',
+                tabModel:'Modèles', tabConv:'Chat', tabSpeech:'Vocal',
+                tabRec:'Diction', tabLang:'Langue', tabBilling:'Facturation',
+                providerHint:'Sélectionnez un fournisseur pour remplir automatiquement le point de terminaison',
+                apiKeyLabel:'Clé API', apiKeyPlaceholder:'Entrez la clé API',
+                modelIdLabel:'ID du modèle', fetchModelsTitle:'Récupérer la liste des modèles du fournisseur',
+                fetchModelsBtnText:'Récupérer modèles', modelIdPlaceholder:"Entrez ou sélectionnez l'ID du modèle",
+                apiUrlLabel:'Point de terminaison', openaiCompat:'(Compatible OpenAI)',
+                applyBtn:'Appliquer', appliedTip:'Appliqué ✓',
+                sysRoleLabel:'Rôle système', presetRoleLabel:'Préréglage',
+                sysRolePlaceholder:'Vous êtes un assistant utile. Répondez de manière concise.',
+                personality:'Personnalité', personalityLow:'Précis', personalityHigh:'Créatif',
+                quality:'Qualité', qualityLow:'Répétitif', qualityHigh:'Aléatoire',
+                typeSpeed:'Vitesse de frappe', slow:'Lent', fast:'Rapide',
+                contChat:'Mémoire contextuelle', longReply:'Réponse longue',
+                exportChat:'Exporter', importChat:'Importer', clearChat:'Effacer',
+                speechService:'Service vocal', loadingVoice:'Chargement de la voix',
+                voiceType:'Type de voix', questionVoice:'Voix question', answerVoice:'Voix réponse',
+                voiceStyle:'Style', voiceRole:'Rôle',
+                volume:'Volume', low:'Bas', high:'Haut',
+                speechRate:'Vitesse', pitch:'Tonalité', flat:'Plat', varied:'Varié',
+                contRead:'Lecture continue', autoRead:'Lecture auto',
+                noRecTip:"La reconnaissance vocale n'est pas prise en charge. Utilisez Chrome ou déployez avec HTTPS.",
+                recLang:'Langue', recDialect:'Dialecte',
+                langPanelHint:'Sélectionnez la langue, effet immédiat',
+            },
+            'de-DE': {
+                langName:'Deutsch', langFlag:'🇩🇪',
+                newChat:'Neuer Chat', newChatTitle:'Neuer Chat', send:'Senden', stop:'Stopp',
+                inputPlaceholder:'Stellen Sie eine Frage…', clearConvTitle:'Chat leeren',
+                htmlPreview:'HTML-Vorschau', settingsTitle:'Einstellungen', settingsSvgTitle:'Einstellungen',
+                tabModel:'Modelle', tabConv:'Chat', tabSpeech:'Sprache',
+                tabRec:'Erkennen', tabLang:'Sprache', tabBilling:'Rechnung',
+                providerHint:'Anbieter wählen, um API-Endpunkt und Modellliste automatisch auszufüllen',
+                apiKeyLabel:'API-Schlüssel', apiKeyPlaceholder:'API-Schlüssel eingeben',
+                modelIdLabel:'Modell-ID', fetchModelsTitle:'Neueste Modellliste vom Anbieter abrufen',
+                fetchModelsBtnText:'Modelle abrufen', modelIdPlaceholder:'Modell-ID eingeben oder auswählen',
+                apiUrlLabel:'API-Endpunkt', openaiCompat:'(OpenAI-kompatibel)',
+                applyBtn:'Übernehmen', appliedTip:'Übernommen ✓',
+                sysRoleLabel:'Systemrolle', presetRoleLabel:'Voreinstellung',
+                sysRolePlaceholder:'Sie sind ein hilfreicher Assistent. Bitte antworten Sie kurz.',
+                personality:'Persönlichkeit', personalityLow:'Präzise', personalityHigh:'Kreativ',
+                quality:'Antwortqualität', qualityLow:'Repetitiv', qualityHigh:'Zufällig',
+                typeSpeed:'Tippgeschwindigkeit', slow:'Langsam', fast:'Schnell',
+                contChat:'Gesprächsgedächtnis', longReply:'Lange Antwort',
+                exportChat:'Exportieren', importChat:'Importieren', clearChat:'Leeren',
+                speechService:'Sprachdienst', loadingVoice:'Stimme wird geladen',
+                voiceType:'Stimmentyp', questionVoice:'Fragenstimme', answerVoice:'Antwortstimme',
+                voiceStyle:'Stil', voiceRole:'Rolle',
+                volume:'Lautstärke', low:'Niedrig', high:'Hoch',
+                speechRate:'Geschwindigkeit', pitch:'Tonhöhe', flat:'Flach', varied:'Variiert',
+                contRead:'Kont. Lesen', autoRead:'Auto-Lesen',
+                noRecTip:'Spracherkennung wird nicht unterstützt. Bitte Chrome verwenden oder mit HTTPS bereitstellen.',
+                recLang:'Sprache', recDialect:'Dialekt',
+                langPanelHint:'Sprache auswählen, sofort wirksam',
+            },
+            'es-ES': {
+                langName:'Español', langFlag:'🇪🇸',
+                newChat:'Nuevo chat', newChatTitle:'Nuevo chat', send:'Enviar', stop:'Detener',
+                inputPlaceholder:'Hazme una pregunta…', clearConvTitle:'Limpiar conversación',
+                htmlPreview:'Vista previa HTML', settingsTitle:'Configuración', settingsSvgTitle:'Configuración',
+                tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
+                tabRec:'Dictado', tabLang:'Idioma', tabBilling:'Facturación',
+                providerHint:'Seleccione un proveedor para rellenar automáticamente el endpoint y los modelos',
+                apiKeyLabel:'Clave API', apiKeyPlaceholder:'Ingrese la clave API',
+                modelIdLabel:'ID del modelo', fetchModelsTitle:'Obtener lista de modelos del proveedor',
+                fetchModelsBtnText:'Obtener modelos', modelIdPlaceholder:'Ingrese o seleccione el ID del modelo',
+                apiUrlLabel:'Endpoint API', openaiCompat:'(Compatible con OpenAI)',
+                applyBtn:'Aplicar', appliedTip:'Aplicado ✓',
+                sysRoleLabel:'Rol del sistema', presetRoleLabel:'Preset',
+                sysRolePlaceholder:'Eres un asistente útil. Por favor, sé conciso.',
+                personality:'Personalidad', personalityLow:'Preciso', personalityHigh:'Creativo',
+                quality:'Calidad', qualityLow:'Repetitivo', qualityHigh:'Aleatorio',
+                typeSpeed:'Velocidad de escritura', slow:'Lento', fast:'Rápido',
+                contChat:'Memoria contextual', longReply:'Respuesta larga',
+                exportChat:'Exportar', importChat:'Importar', clearChat:'Limpiar',
+                speechService:'Servicio de voz', loadingVoice:'Cargando voz',
+                voiceType:'Tipo de voz', questionVoice:'Voz pregunta', answerVoice:'Voz respuesta',
+                voiceStyle:'Estilo', voiceRole:'Rol',
+                volume:'Volumen', low:'Bajo', high:'Alto',
+                speechRate:'Velocidad', pitch:'Tono', flat:'Plano', varied:'Variado',
+                contRead:'Lectura continua', autoRead:'Lectura auto',
+                noRecTip:'El reconocimiento de voz no es compatible. Use Chrome o despliegue con HTTPS.',
+                recLang:'Idioma', recDialect:'Dialecto',
+                langPanelHint:'Seleccione el idioma, se aplica inmediatamente',
+            },
+            'ru-RU': {
+                langName:'Русский', langFlag:'🇷🇺',
+                newChat:'Новый чат', newChatTitle:'Новый чат', send:'Отправить', stop:'Стоп',
+                inputPlaceholder:'Задайте вопрос…', clearConvTitle:'Очистить чат',
+                htmlPreview:'Предпросмотр HTML', settingsTitle:'Настройки', settingsSvgTitle:'Настройки',
+                tabModel:'Модели', tabConv:'Чат', tabSpeech:'Синтез',
+                tabRec:'Голос', tabLang:'Язык', tabBilling:'Оплата',
+                providerHint:'Выберите провайдера для автозаполнения API-эндпоинта и списка моделей',
+                apiKeyLabel:'API-ключ', apiKeyPlaceholder:'Введите API-ключ',
+                modelIdLabel:'ID модели', fetchModelsTitle:'Получить список моделей от провайдера',
+                fetchModelsBtnText:'Получить модели', modelIdPlaceholder:'Введите или выберите ID модели',
+                apiUrlLabel:'API-эндпоинт', openaiCompat:'(Совместим с OpenAI)',
+                applyBtn:'Применить', appliedTip:'Применено ✓',
+                sysRoleLabel:'Системная роль', presetRoleLabel:'Пресет',
+                sysRolePlaceholder:'Вы — полезный помощник. Отвечайте кратко.',
+                personality:'Личность', personalityLow:'Точный', personalityHigh:'Творческий',
+                quality:'Качество ответов', qualityLow:'Повторяющийся', qualityHigh:'Случайный',
+                typeSpeed:'Скорость печати', slow:'Медленно', fast:'Быстро',
+                contChat:'Память контекста', longReply:'Длинный ответ',
+                exportChat:'Экспорт', importChat:'Импорт', clearChat:'Очистить',
+                speechService:'Служба синтеза речи', loadingVoice:'Загрузка голоса',
+                voiceType:'Тип голоса', questionVoice:'Голос вопроса', answerVoice:'Голос ответа',
+                voiceStyle:'Стиль', voiceRole:'Роль',
+                volume:'Громкость', low:'Низкая', high:'Высокая',
+                speechRate:'Скорость', pitch:'Тон', flat:'Ровный', varied:'Изменчивый',
+                contRead:'Непрерывное чтение', autoRead:'Авточтение',
+                noRecTip:'Распознавание речи не поддерживается. Используйте Chrome или разверните с HTTPS.',
+                recLang:'Язык', recDialect:'Диалект',
+                langPanelHint:'Выберите язык интерфейса, вступит в силу немедленно',
+            },
+            'pt-BR': {
+                langName:'Português', langFlag:'🇧🇷',
+                newChat:'Nova conversa', newChatTitle:'Nova conversa', send:'Enviar', stop:'Parar',
+                inputPlaceholder:'Faça uma pergunta…', clearConvTitle:'Limpar conversa',
+                htmlPreview:'Pré-visualização HTML', settingsTitle:'Configurações', settingsSvgTitle:'Configurações',
+                tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
+                tabRec:'Ditado', tabLang:'Idioma', tabBilling:'Faturação',
+                providerHint:'Selecione um provedor para preencher automaticamente o endpoint e a lista de modelos',
+                apiKeyLabel:'Chave API', apiKeyPlaceholder:'Insira a chave API',
+                modelIdLabel:'ID do modelo', fetchModelsTitle:'Obter lista de modelos mais recente do provedor',
+                fetchModelsBtnText:'Obter modelos', modelIdPlaceholder:'Insira ou selecione o ID do modelo',
+                apiUrlLabel:'Endpoint da API', openaiCompat:'(Compatível com OpenAI)',
+                applyBtn:'Aplicar', appliedTip:'Aplicado ✓',
+                sysRoleLabel:'Papel do sistema', presetRoleLabel:'Predefinição',
+                sysRolePlaceholder:'Você é um assistente útil. Seja conciso.',
+                personality:'Personalidade', personalityLow:'Preciso', personalityHigh:'Criativo',
+                quality:'Qualidade', qualityLow:'Repetitivo', qualityHigh:'Aleatório',
+                typeSpeed:'Velocidade de digitação', slow:'Lento', fast:'Rápido',
+                contChat:'Memória de contexto', longReply:'Resposta longa',
+                exportChat:'Exportar', importChat:'Importar', clearChat:'Limpar',
+                speechService:'Serviço de voz', loadingVoice:'Carregando voz',
+                voiceType:'Tipo de voz', questionVoice:'Voz da pergunta', answerVoice:'Voz da resposta',
+                voiceStyle:'Estilo', voiceRole:'Papel',
+                volume:'Volume', low:'Baixo', high:'Alto',
+                speechRate:'Velocidade', pitch:'Tom', flat:'Plano', varied:'Variado',
+                contRead:'Leitura contínua', autoRead:'Leitura auto',
+                noRecTip:'O reconhecimento de voz não é suportado. Use o Chrome ou implante com HTTPS.',
+                recLang:'Idioma', recDialect:'Dialeto',
+                langPanelHint:'Selecione o idioma, aplica-se imediatamente',
+            },
+        };
+        let currentLang = 'zh-CN';
+        // ─────────────────────────────────────────────────────────────────────
+
         const PROVIDERS = [
             {
                 id: "openai",
@@ -3988,33 +4318,39 @@
         };
 
         const selectProvider = (pid) => {
+            const keyEl = document.getElementById("providerKeyInput");
             const modelEl = document.getElementById("providerModelInput");
-            // Before switching away from custom, save whatever is in the input as the custom model ID
-            if (activeProviderId === "custom" && pid !== "custom") {
-                const cur = modelEl.value.trim();
-                if (cur) localStorage.setItem("customModelId", cur);
-            }
             activeProviderId = pid;
             highlightCard(pid);
             const p = PROVIDERS.find(x => x.id === pid);
             const detailEl = document.getElementById("providerDetail");
             const urlEl = document.getElementById("providerUrlInput");
             detailEl.style.display = "block";
-            if (pid === "custom") {
+
+            // Restore per-provider saved settings (written by saveProviderSettings)
+            const savedKey = localStorage.getItem(`provider_${pid}_key`) || "";
+            const savedModel = localStorage.getItem(`provider_${pid}_model`) || "";
+            const savedUrl = localStorage.getItem(`provider_${pid}_url`) || "";
+
+            keyEl.value = savedKey;
+
+            if (savedUrl) {
+                urlEl.value = savedUrl;
+            } else if (pid === "custom") {
                 urlEl.value = localStorage.getItem("APIHost") || "";
-                // Restore the previously saved custom model ID
-                const savedCustomModel = localStorage.getItem("customModelId") || "";
-                modelEl.value = savedCustomModel;
             } else {
-                urlEl.value = p.url;
-                // Pick model: keep current if it belongs to this provider's known list, else use first
-                let currentModel = modelEl.value || localStorage.getItem("modelVersion") || "";
-                const knownModels = liveModelCache[pid] || p.models;
-                if (knownModels.length && !knownModels.includes(currentModel)) {
-                    currentModel = knownModels[0];
-                    modelEl.value = currentModel;
-                }
+                urlEl.value = p ? p.url : "";
             }
+
+            if (savedModel) {
+                modelEl.value = savedModel;
+            } else if (pid === "custom") {
+                modelEl.value = localStorage.getItem("customModelId") || "";
+            } else {
+                const knownModels = liveModelCache[pid] || (p ? p.models : []);
+                modelEl.value = knownModels.length ? knownModels[0] : "";
+            }
+
             applyModelSection(pid, modelEl.value);
             localStorage.setItem("activeProviderId", pid);
         };
@@ -4033,20 +4369,15 @@
             localStorage.setItem("modelVersion", newModel);
             localStorage.setItem("APIHost", newUrl);
             localStorage.setItem("activeProviderId", activeProviderId);
-            // Persist custom model ID separately so switching back restores it
-            if (activeProviderId === "custom" && newModel) {
-                localStorage.setItem("customModelId", newModel);
-            }
+            // Persist per-provider settings so switching back restores them
+            localStorage.setItem(`provider_${activeProviderId}_key`, newKey);
+            localStorage.setItem(`provider_${activeProviderId}_model`, newModel);
+            localStorage.setItem(`provider_${activeProviderId}_url`, newUrl);
 
             // Update runtime variables immediately
             customAPIKey = newKey;
             modelVersion = newModel;
             apiHost = newUrl;
-
-            // Sync the existing convOption inputs so they stay consistent
-            document.getElementById("keyInput").value = newKey;
-            document.getElementById("preSetModel").value = newModel; // may not match any <option> for custom models – that's fine
-            document.getElementById("apiHostInput").value = newUrl;
 
             // Update chip highlight using live cache or static fallback
             applyModelSection(activeProviderId, newModel);
@@ -4056,9 +4387,236 @@
             tip.classList.add("show");
             setTimeout(() => tip.classList.remove("show"), 2000);
         };
+        // ── applyLanguage ─────────────────────────────────────────────────
+        const applyLanguage = (lang) => {
+            const t = TRANSLATIONS[lang] || TRANSLATIONS['zh-CN'];
+            currentLang = lang;
+            localStorage.setItem('uiLanguage', lang);
+            document.documentElement.lang = lang;
+
+            // Main UI
+            const newChatSpan = document.querySelector('#newChat > span');
+            if (newChatSpan) newChatSpan.textContent = t.newChat;
+
+            const sendSpan = document.querySelector('#sendbutton > span');
+            if (sendSpan) sendSpan.textContent = t.send;
+
+            const chatinput = document.getElementById('chatinput');
+            if (chatinput) chatinput.placeholder = t.inputPlaceholder;
+
+            const stopChat = document.getElementById('stopChat');
+            if (stopChat) {
+                for (const n of stopChat.childNodes) {
+                    if (n.nodeType === 3 && n.textContent.trim()) { n.textContent = t.stop; break; }
+                }
+            }
+
+            const htmlPreviewSpan = document.querySelector('#htmlPreviewBar > span');
+            if (htmlPreviewSpan) htmlPreviewSpan.textContent = t.htmlPreview;
+
+            const settingTitle = document.querySelector('#setting title');
+            if (settingTitle) settingTitle.textContent = t.settingsSvgTitle;
+
+            const clearConvTitleEl = document.querySelector('#clearConv title');
+            if (clearConvTitleEl) clearConvTitleEl.textContent = t.clearConvTitle;
+
+            // Settings dialog title
+            const setTitle = document.querySelector('.setTitle');
+            if (setTitle) setTitle.textContent = t.settingsTitle;
+
+            // Tabs
+            const tabMap = {providerOption:t.tabModel, convOption:t.tabConv, speechOption:t.tabSpeech, recOption:t.tabRec, langOption:t.tabLang};
+            for (const [id, text] of Object.entries(tabMap)) {
+                const tab = document.querySelector(`.setSwitch [data-id="${id}"]`);
+                if (tab) tab.textContent = text;
+            }
+
+            // Provider section
+            const providerHintEl = document.querySelector('#providerOption > div:first-child');
+            if (providerHintEl) providerHintEl.textContent = t.providerHint;
+
+            const apiKeyLabelEl = document.querySelector('#providerDetail > div:first-child > div:first-child');
+            if (apiKeyLabelEl) apiKeyLabelEl.textContent = t.apiKeyLabel;
+
+            const providerKeyInput = document.getElementById('providerKeyInput');
+            if (providerKeyInput) providerKeyInput.placeholder = t.apiKeyPlaceholder;
+
+            const modelIdLabelEl = document.querySelector('#providerModelSection > div > div:first-child');
+            if (modelIdLabelEl) modelIdLabelEl.textContent = t.modelIdLabel;
+
+            const fetchModelsBtn = document.getElementById('fetchModelsBtn');
+            if (fetchModelsBtn) fetchModelsBtn.title = t.fetchModelsTitle;
+
+            const fetchModelsBtnText = document.getElementById('fetchModelsBtnText');
+            if (fetchModelsBtnText) fetchModelsBtnText.textContent = t.fetchModelsBtnText;
+
+            const providerModelInput = document.getElementById('providerModelInput');
+            if (providerModelInput) providerModelInput.placeholder = t.modelIdPlaceholder;
+
+            const providerUrlInput = document.getElementById('providerUrlInput');
+            if (providerUrlInput) {
+                const urlLabelDiv = providerUrlInput.previousElementSibling;
+                if (urlLabelDiv) {
+                    const compatSpan = urlLabelDiv.querySelector('span');
+                    if (compatSpan) {
+                        const tn = urlLabelDiv.firstChild;
+                        if (tn && tn.nodeType === 3) tn.textContent = t.apiUrlLabel + ' ';
+                        compatSpan.textContent = t.openaiCompat;
+                    } else {
+                        urlLabelDiv.textContent = t.apiUrlLabel;
+                    }
+                }
+            }
+
+            const providerSaveBtn = document.querySelector('.providerSaveBtn');
+            if (providerSaveBtn) providerSaveBtn.textContent = t.applyBtn;
+
+            const providerSavedTip = document.getElementById('providerSavedTip');
+            if (providerSavedTip) providerSavedTip.textContent = t.appliedTip;
+
+            // Conv section
+            const sysRoleEl = document.querySelector('#convOption .justSetLine > div:first-child');
+            if (sysRoleEl) sysRoleEl.textContent = t.sysRoleLabel;
+
+            const presetRoleLabel = document.querySelector('label[for="preSetSystem"]');
+            if (presetRoleLabel) presetRoleLabel.textContent = t.presetRoleLabel;
+
+            const systemInput = document.getElementById('systemInput');
+            if (systemInput) systemInput.placeholder = t.sysRolePlaceholder;
+
+            const top_p = document.getElementById('top_p');
+            if (top_p && top_p.previousElementSibling) {
+                top_p.previousElementSibling.textContent = t.personality;
+                const sd = top_p.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.personalityLow; sd.children[1].textContent = t.personalityHigh; }
+            }
+            const temp = document.getElementById('temp');
+            if (temp && temp.previousElementSibling) {
+                temp.previousElementSibling.textContent = t.quality;
+                const sd = temp.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.qualityLow; sd.children[1].textContent = t.qualityHigh; }
+            }
+            const textSpeed = document.getElementById('textSpeed');
+            if (textSpeed && textSpeed.previousElementSibling) {
+                textSpeed.previousElementSibling.textContent = t.typeSpeed;
+                const sd = textSpeed.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.slow; sd.children[1].textContent = t.fast; }
+            }
+
+            const enableCont = document.getElementById('enableCont');
+            if (enableCont) {
+                const sp = enableCont.closest('.switch-slide') && enableCont.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
+                if (sp) sp.textContent = t.contChat;
+            }
+            const enableLongReply = document.getElementById('enableLongReply');
+            if (enableLongReply) {
+                const sp = enableLongReply.closest('.switch-slide') && enableLongReply.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
+                if (sp) sp.textContent = t.longReply;
+            }
+
+            const exportSpan = document.querySelector('#exportChat > span');
+            if (exportSpan) exportSpan.textContent = t.exportChat;
+            const importSpan = document.querySelector('#importChat > span');
+            if (importSpan) importSpan.textContent = t.importChat;
+            const clearSpan = document.querySelector('#clearChat > span');
+            if (clearSpan) clearSpan.textContent = t.clearChat;
+
+            // Speech section
+            const speechServiceLabel = document.querySelector('label[for="preSetService"]');
+            if (speechServiceLabel) speechServiceLabel.textContent = t.speechService;
+
+            const loadingVoiceSpan = document.querySelector('#checkVoiceLoad > span');
+            if (loadingVoiceSpan) loadingVoiceSpan.textContent = t.loadingVoice;
+
+            const voiceTypeLabelEl = document.querySelector('#speechDetail .justSetLine > div:first-child');
+            if (voiceTypeLabelEl) voiceTypeLabelEl.textContent = t.voiceType;
+
+            const questionVoiceSpan = document.querySelector('#voiceTypes [data-type="0"]');
+            if (questionVoiceSpan) questionVoiceSpan.textContent = t.questionVoice;
+            const answerVoiceSpan = document.querySelector('#voiceTypes [data-type="1"]');
+            if (answerVoiceSpan) answerVoiceSpan.textContent = t.answerVoice;
+
+            const voiceStyleLabel = document.querySelector('label[for="preSetVoiceStyle"]');
+            if (voiceStyleLabel) voiceStyleLabel.textContent = t.voiceStyle;
+            const voiceRoleLabel = document.querySelector('label[for="preSetVoiceRole"]');
+            if (voiceRoleLabel) voiceRoleLabel.textContent = t.voiceRole;
+
+            const voiceVolume = document.getElementById('voiceVolume');
+            if (voiceVolume && voiceVolume.previousElementSibling) {
+                voiceVolume.previousElementSibling.textContent = t.volume;
+                const sd = voiceVolume.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.low; sd.children[1].textContent = t.high; }
+            }
+            const voiceRate = document.getElementById('voiceRate');
+            if (voiceRate && voiceRate.previousElementSibling) {
+                voiceRate.previousElementSibling.textContent = t.speechRate;
+                const sd = voiceRate.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.slow; sd.children[1].textContent = t.fast; }
+            }
+            const voicePitch = document.getElementById('voicePitch');
+            if (voicePitch && voicePitch.previousElementSibling) {
+                voicePitch.previousElementSibling.textContent = t.pitch;
+                const sd = voicePitch.nextElementSibling;
+                if (sd && sd.children.length >= 2) { sd.children[0].textContent = t.flat; sd.children[1].textContent = t.varied; }
+            }
+
+            const enableContVoice = document.getElementById('enableContVoice');
+            if (enableContVoice) {
+                const sp = enableContVoice.closest('.switch-slide') && enableContVoice.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
+                if (sp) sp.textContent = t.contRead;
+            }
+            const enableAutoVoice = document.getElementById('enableAutoVoice');
+            if (enableAutoVoice) {
+                const sp = enableAutoVoice.closest('.switch-slide') && enableAutoVoice.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
+                if (sp) sp.textContent = t.autoRead;
+            }
+
+            // Rec section
+            const noRecTip = document.getElementById('noRecTip');
+            if (noRecTip) noRecTip.textContent = t.noRecTip;
+            const recLangLabel = document.querySelector('label[for="selectLangOption"]');
+            if (recLangLabel) recLangLabel.textContent = t.recLang;
+            const recDialectLabel = document.querySelector('label[for="selectDiaOption"]');
+            if (recDialectLabel) recDialectLabel.textContent = t.recDialect;
+
+            // Lang panel hint
+            const langPanelHintEl = document.getElementById('langPanelHint');
+            if (langPanelHintEl) langPanelHintEl.textContent = t.langPanelHint;
+
+            // Update card highlight
+            document.querySelectorAll('.langCard').forEach(c => {
+                c.classList.toggle('activeLang', c.dataset.lang === lang);
+            });
+        };
+
+        // ── initLangSetting ───────────────────────────────────────────────
+        const initLangSetting = () => {
+            const container = document.getElementById('langCards');
+            if (!container) return;
+            container.innerHTML = '';
+            Object.keys(TRANSLATIONS).forEach(code => {
+                const lc = TRANSLATIONS[code];
+                const card = document.createElement('div');
+                card.className = 'langCard';
+                card.dataset.lang = code;
+                card.innerHTML = `<div class="langFlag">${lc.langFlag}</div>
+                    <div class="langInfo">
+                        <div class="langName">${lc.langName}</div>
+                        <div class="langCode">${code}</div>
+                    </div>
+                    <div class="langCheck"></div>`;
+                card.onclick = () => applyLanguage(code);
+                container.appendChild(card);
+            });
+            const saved = localStorage.getItem('uiLanguage') || 'zh-CN';
+            applyLanguage(saved);
+        };
+        // ─────────────────────────────────────────────────────────────────────
+
         // ────────────────────────────────────────────────────────────────
         initSetting();
         initProviderSetting();
+        initLangSetting();
         document.getElementById("loadMask").style.display = "none";
         const openSettingDialog = () => {
             dialogEle.style.display = "flex";
@@ -4863,7 +5421,8 @@
             let requestEle = createConvEle("request");
             getBodyEle(requestEle).textContent = '问：' + message;
             data.push({role: "user", content: message});
-            if (chatsData[activeChatIdx].name === "新的会话") {
+            const _allDefaultTitles = new Set(Object.values(TRANSLATIONS).map(t => t.newChatTitle));
+            if (_allDefaultTitles.has(chatsData[activeChatIdx].name)) {
                 if (message.length > 50) {
                     message = message.slice(0, 47) + "...";
                 }
