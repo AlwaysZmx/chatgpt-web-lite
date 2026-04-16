@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="description" content="使用ChatGPT接口，实现简单HTML网页版在线聊天" />
+<meta name="description" content="NanoChat — 轻量单文件 AI 聊天界面，支持多供应商" />
 
 <head>
     <meta charset="utf-8">
-    <title>ChatGPT Lite</title>
+    <title>NanoChat</title>
     <style>
         * {
             box-sizing: border-box;
@@ -965,6 +965,95 @@
 
         .providerSavedTip.show {
             opacity: 1;
+        }
+
+        /* 关于面板 */
+        .aboutHeader {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .aboutLogo {
+            font-size: 38px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .aboutAppName {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e1f2e;
+            letter-spacing: -0.3px;
+        }
+
+        .aboutVersion {
+            display: inline-block;
+            margin-top: 3px;
+            font-size: 11px;
+            color: #6c63ff;
+            background: rgba(108,99,255,0.1);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-weight: 600;
+        }
+
+        .aboutDesc {
+            font-size: 12px;
+            color: #7b7d9a;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #eeeeff;
+        }
+
+        .aboutFeatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .aboutFeatureItem {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #4a4b6a;
+            background: #f7f8fe;
+            border-radius: 8px;
+            padding: 7px 10px;
+        }
+
+        .aboutFeatureItem span:first-child {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .aboutLinks {
+            display: flex;
+            gap: 8px;
+        }
+
+        .aboutLinkBtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #ddddf0;
+            background: #fff;
+            color: #5a52e0;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .aboutLinkBtn:hover {
+            border-color: #a78bfa;
+            background: #f7f8fe;
         }
 
         /* 语言选择卡片 */
@@ -1983,7 +2072,7 @@
     </div>
     <div id="loadMask">
         <div>
-            <div>ChatGPT Lite</div>
+            <div>NanoChat</div>
             <svg>
                 <use xlink:href="#loadingIcon" />
             </svg>
@@ -2014,7 +2103,7 @@
                 <div class="button minimize"></div>
                 <div class="button maximize"></div>
             </div>
-            <div class="title">ChatGPT Lite</div>
+            <div class="title">NanoChat</div>
             <button id="setting">
                 <svg viewBox="0 0 100 100" style="display:block;" role="img" width="30" height="30">
                     <title>设置</title>
@@ -2038,6 +2127,7 @@
                     <div data-id="recOption">语音识别</div>
                     <div data-id="langOption">语言</div>
 					<div data-id="billingOption" onclick="checkOpenAICredit()" style="display:none;">账单</div>
+                    <div data-id="aboutOption" style="margin-top:auto;">关于</div>
                 </div>
                 <div id="setDialogContent">
                 <div id="providerOption">
@@ -2253,6 +2343,29 @@
                 <div id="langOption" style="display:none;">
                     <div id="langPanelHint" style="font-size:12px;color:#7b7d9a;margin-bottom:10px;">选择界面语言，立即生效</div>
                     <div id="langCards"></div>
+                </div>
+                <div id="aboutOption" style="display:none;">
+                    <div class="aboutHeader">
+                        <div class="aboutLogo">⚡</div>
+                        <div>
+                            <div class="aboutAppName">NanoChat</div>
+                            <div class="aboutVersion">v1.0</div>
+                        </div>
+                    </div>
+                    <div class="aboutDesc">轻量单文件 AI 聊天界面，兼容 OpenAI 格式，支持多供应商</div>
+                    <div class="aboutFeatures">
+                        <div class="aboutFeatureItem"><span>🤖</span><span>多供应商支持</span></div>
+                        <div class="aboutFeatureItem"><span>🌍</span><span>10 种界面语言</span></div>
+                        <div class="aboutFeatureItem"><span>🎤</span><span>语音合成与识别</span></div>
+                        <div class="aboutFeatureItem"><span>📄</span><span>单 HTML 文件部署</span></div>
+                    </div>
+                    <div class="aboutLinks">
+                        <a class="aboutLinkBtn" href="https://github.com/AlwaysZmx/chatgpt-web-lite" target="_blank" rel="noopener noreferrer">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                            GitHub
+                        </a>
+                        <a class="aboutLinkBtn" href="https://weblab.top/" target="_blank" rel="noopener noreferrer">🌐 WebLab.top</a>
+                    </div>
                 </div>
                 </div>
                 </div>
@@ -3788,7 +3901,7 @@
                 inputPlaceholder:'来问点什么吧', clearConvTitle:'清空会话',
                 htmlPreview:'HTML 预览', settingsTitle:'设置', settingsSvgTitle:'设置',
                 tabModel:'模型', tabConv:'对话', tabSpeech:'语音合成',
-                tabRec:'语音识别', tabLang:'语言', tabBilling:'账单',
+                tabRec:'语音识别', tabLang:'语言', tabAbout:'关于', tabBilling:'账单',
                 providerHint:'选择供应商，自动填充接口地址和模型列表',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'输入 API Key',
                 modelIdLabel:'模型 ID', fetchModelsTitle:'从供应商接口获取最新模型列表',
@@ -3818,7 +3931,7 @@
                 inputPlaceholder:'Ask me anything…', clearConvTitle:'Clear Chat',
                 htmlPreview:'HTML Preview', settingsTitle:'Settings', settingsSvgTitle:'Settings',
                 tabModel:'Models', tabConv:'Chat', tabSpeech:'Speech',
-                tabRec:'Voice', tabLang:'Language', tabBilling:'Billing',
+                tabRec:'Voice', tabLang:'Language', tabAbout:'About', tabBilling:'Billing',
                 providerHint:'Select a provider to auto-fill API endpoint and model list',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'Enter API Key',
                 modelIdLabel:'Model ID', fetchModelsTitle:'Fetch latest model list from provider API',
@@ -3848,7 +3961,7 @@
                 inputPlaceholder:'來問點什麼吧', clearConvTitle:'清空會話',
                 htmlPreview:'HTML 預覽', settingsTitle:'設定', settingsSvgTitle:'設定',
                 tabModel:'模型', tabConv:'對話', tabSpeech:'語音合成',
-                tabRec:'語音辨識', tabLang:'語言', tabBilling:'帳單',
+                tabRec:'語音辨識', tabLang:'語言', tabAbout:'關於', tabBilling:'帳單',
                 providerHint:'選擇供應商，自動填入接口地址和模型清單',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'輸入 API Key',
                 modelIdLabel:'模型 ID', fetchModelsTitle:'從供應商接口取得最新模型清單',
@@ -3878,7 +3991,7 @@
                 inputPlaceholder:'質問してください…', clearConvTitle:'チャットをクリア',
                 htmlPreview:'HTMLプレビュー', settingsTitle:'設定', settingsSvgTitle:'設定',
                 tabModel:'モデル', tabConv:'チャット', tabSpeech:'音声合成',
-                tabRec:'音声入力', tabLang:'言語', tabBilling:'請求',
+                tabRec:'音声入力', tabLang:'言語', tabAbout:'概要', tabBilling:'請求',
                 providerHint:'プロバイダーを選択してAPIエンドポイントとモデルリストを自動入力',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'API Keyを入力',
                 modelIdLabel:'モデルID', fetchModelsTitle:'プロバイダーから最新モデルリストを取得',
@@ -3908,7 +4021,7 @@
                 inputPlaceholder:'무엇이든 물어보세요…', clearConvTitle:'대화 지우기',
                 htmlPreview:'HTML 미리보기', settingsTitle:'설정', settingsSvgTitle:'설정',
                 tabModel:'모델', tabConv:'대화', tabSpeech:'음성합성',
-                tabRec:'음성입력', tabLang:'언어', tabBilling:'결제',
+                tabRec:'음성입력', tabLang:'언어', tabAbout:'정보', tabBilling:'결제',
                 providerHint:'공급업체를 선택하면 API 엔드포인트와 모델 목록이 자동으로 입력됩니다',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'API Key 입력',
                 modelIdLabel:'모델 ID', fetchModelsTitle:'공급업체 API에서 최신 모델 목록 가져오기',
@@ -3938,7 +4051,7 @@
                 inputPlaceholder:'Posez votre question…', clearConvTitle:'Effacer la conversation',
                 htmlPreview:'Aperçu HTML', settingsTitle:'Paramètres', settingsSvgTitle:'Paramètres',
                 tabModel:'Modèles', tabConv:'Chat', tabSpeech:'Vocal',
-                tabRec:'Diction', tabLang:'Langue', tabBilling:'Facturation',
+                tabRec:'Diction', tabLang:'Langue', tabAbout:'À propos', tabBilling:'Facturation',
                 providerHint:'Sélectionnez un fournisseur pour remplir automatiquement le point de terminaison',
                 apiKeyLabel:'Clé API', apiKeyPlaceholder:'Entrez la clé API',
                 modelIdLabel:'ID du modèle', fetchModelsTitle:'Récupérer la liste des modèles du fournisseur',
@@ -3968,7 +4081,7 @@
                 inputPlaceholder:'Stellen Sie eine Frage…', clearConvTitle:'Chat leeren',
                 htmlPreview:'HTML-Vorschau', settingsTitle:'Einstellungen', settingsSvgTitle:'Einstellungen',
                 tabModel:'Modelle', tabConv:'Chat', tabSpeech:'Sprache',
-                tabRec:'Erkennen', tabLang:'Sprache', tabBilling:'Rechnung',
+                tabRec:'Erkennen', tabLang:'Sprache', tabAbout:'Über', tabBilling:'Rechnung',
                 providerHint:'Anbieter wählen, um API-Endpunkt und Modellliste automatisch auszufüllen',
                 apiKeyLabel:'API-Schlüssel', apiKeyPlaceholder:'API-Schlüssel eingeben',
                 modelIdLabel:'Modell-ID', fetchModelsTitle:'Neueste Modellliste vom Anbieter abrufen',
@@ -3998,7 +4111,7 @@
                 inputPlaceholder:'Hazme una pregunta…', clearConvTitle:'Limpiar conversación',
                 htmlPreview:'Vista previa HTML', settingsTitle:'Configuración', settingsSvgTitle:'Configuración',
                 tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
-                tabRec:'Dictado', tabLang:'Idioma', tabBilling:'Facturación',
+                tabRec:'Dictado', tabLang:'Idioma', tabAbout:'Acerca de', tabBilling:'Facturación',
                 providerHint:'Seleccione un proveedor para rellenar automáticamente el endpoint y los modelos',
                 apiKeyLabel:'Clave API', apiKeyPlaceholder:'Ingrese la clave API',
                 modelIdLabel:'ID del modelo', fetchModelsTitle:'Obtener lista de modelos del proveedor',
@@ -4028,7 +4141,7 @@
                 inputPlaceholder:'Задайте вопрос…', clearConvTitle:'Очистить чат',
                 htmlPreview:'Предпросмотр HTML', settingsTitle:'Настройки', settingsSvgTitle:'Настройки',
                 tabModel:'Модели', tabConv:'Чат', tabSpeech:'Синтез',
-                tabRec:'Голос', tabLang:'Язык', tabBilling:'Оплата',
+                tabRec:'Голос', tabLang:'Язык', tabAbout:'О нас', tabBilling:'Оплата',
                 providerHint:'Выберите провайдера для автозаполнения API-эндпоинта и списка моделей',
                 apiKeyLabel:'API-ключ', apiKeyPlaceholder:'Введите API-ключ',
                 modelIdLabel:'ID модели', fetchModelsTitle:'Получить список моделей от провайдера',
@@ -4058,7 +4171,7 @@
                 inputPlaceholder:'Faça uma pergunta…', clearConvTitle:'Limpar conversa',
                 htmlPreview:'Pré-visualização HTML', settingsTitle:'Configurações', settingsSvgTitle:'Configurações',
                 tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
-                tabRec:'Ditado', tabLang:'Idioma', tabBilling:'Faturação',
+                tabRec:'Ditado', tabLang:'Idioma', tabAbout:'Sobre', tabBilling:'Faturação',
                 providerHint:'Selecione um provedor para preencher automaticamente o endpoint e a lista de modelos',
                 apiKeyLabel:'Chave API', apiKeyPlaceholder:'Insira a chave API',
                 modelIdLabel:'ID do modelo', fetchModelsTitle:'Obter lista de modelos mais recente do provedor',
@@ -4425,7 +4538,7 @@
             if (setTitle) setTitle.textContent = t.settingsTitle;
 
             // Tabs
-            const tabMap = {providerOption:t.tabModel, convOption:t.tabConv, speechOption:t.tabSpeech, recOption:t.tabRec, langOption:t.tabLang};
+            const tabMap = {providerOption:t.tabModel, convOption:t.tabConv, speechOption:t.tabSpeech, recOption:t.tabRec, langOption:t.tabLang, aboutOption:t.tabAbout};
             for (const [id, text] of Object.entries(tabMap)) {
                 const tab = document.querySelector(`.setSwitch [data-id="${id}"]`);
                 if (tab) tab.textContent = text;
