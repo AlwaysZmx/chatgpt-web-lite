@@ -5781,18 +5781,10 @@
                                     continue;
                                 }
                                 if (!payload.choices || !payload.choices[0]) continue;
-                                    if (payload.choices[0].finish_reason) {
-                                        let lenStop = payload.choices[0].finish_reason === "length";
-                                        let longReplyFlag = enableLongReply && lenStop;
-                                        if (!enableLongReply && lenStop) {getOptionEle(currentResEle).children[0].className = "halfRefReq"}
-                                        else {getOptionEle(currentResEle).children[0].className = "refreshReq"};
-                                        if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
-                                            let voiceText = longReplyFlag ? "" : progressData.slice(autoVoiceIdx), stop = !longReplyFlag;
-                                            autoSpeechEvent(voiceText, currentResEle, false, stop);
-                                        }
-                                        break;
-                                    } else {
-                                        let delta = payload.choices[0].delta;
+                                    {
+                                        const choice = payload.choices[0];
+                                        const delta = choice.delta || {};
+                                        // 先处理本 chunk 的 delta 内容（兼容 Gemini 等将内容与 finish_reason 合并在同一 chunk 的模型）
                                         // 处理思考内容（DeepSeek: reasoning_content，Claude 独立字段: thinking）
                                         let thinkingChunk = delta.reasoning_content || (delta.thinking !== undefined ? delta.thinking : null);
                                         if (thinkingChunk) {
@@ -5848,6 +5840,18 @@
                                                     scrollToBottom();
                                                 }
                                             }
+                                        }
+                                        // 再处理 finish_reason（确保同一 chunk 中的内容已被渲染）
+                                        if (choice.finish_reason) {
+                                            let lenStop = choice.finish_reason === "length";
+                                            let longReplyFlag = enableLongReply && lenStop;
+                                            if (!enableLongReply && lenStop) {getOptionEle(currentResEle).children[0].className = "halfRefReq"}
+                                            else {getOptionEle(currentResEle).children[0].className = "refreshReq"};
+                                            if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
+                                                let voiceText = longReplyFlag ? "" : progressData.slice(autoVoiceIdx), stop = !longReplyFlag;
+                                                autoSpeechEvent(voiceText, currentResEle, false, stop);
+                                            }
+                                            break;
                                         }
                                     }
                             }
