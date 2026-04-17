@@ -2232,6 +2232,134 @@
         html[data-theme="rose"] .activeSwitch { background-color: #fff !important; color: #c2185b !important; }
         html[data-theme="rose"] .thinkingBlock.done .thinkingDot { background: #c2185b; }
         html[data-theme="rose"] input[type=range] { accent-color: #c2185b; }
+
+        /* ── Share Button ── */
+        #shareConv {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #7b7d9a;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+        #shareConv:hover { background: #eeeeff; color: #6c63ff; }
+        html[data-theme="dark"] #shareConv:hover { background: #252640; color: #a78bfa; }
+
+        /* ── Share Modal ── */
+        #shareModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+        }
+        #shareModal.active { display: flex; }
+        #shareModalOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        #shareModalBox {
+            position: relative;
+            z-index: 1;
+            width: min(700px, 96vw);
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+            overflow: hidden;
+        }
+        #shareModalHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e1f2e;
+            border-bottom: 1px solid #e8e8f4;
+            flex-shrink: 0;
+        }
+        #shareCloseBtn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #7b7d9a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        #shareCloseBtn:hover { background: #f0f0f8; }
+        #sharePreviewScroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #e8e8f4;
+            display: flex;
+            justify-content: center;
+        }
+        #shareCard { width: 100%; max-width: 640px; }
+        #shareModalFooter {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #e8e8f4;
+            flex-shrink: 0;
+        }
+        #shareDownloadBtn {
+            display: flex;
+            align-items: center;
+            padding: 9px 22px;
+            background: #6c63ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #shareDownloadBtn:hover { background: #5a52e0; }
+        #shareDownloadBtn:disabled { background: #aaa; cursor: not-allowed; }
+        /* Dark theme modal */
+        html[data-theme="dark"] #shareModalBox { background: #1a1b2e; }
+        html[data-theme="dark"] #shareModalHeader { color: #e0e1f0; border-color: #2e2f50; }
+        html[data-theme="dark"] #shareCloseBtn { color: #8888aa; }
+        html[data-theme="dark"] #shareCloseBtn:hover { background: #252640; }
+        html[data-theme="dark"] #sharePreviewScroll { background: #0e0f1c; }
+        html[data-theme="dark"] #shareModalFooter { border-color: #2e2f50; }
+        /* Screenshot card markdown content */
+        .sc-ai-content { font-size: 14px; line-height: 1.7; word-break: break-word; }
+        .sc-ai-content p { margin: 0 0 8px 0; }
+        .sc-ai-content p:last-child { margin-bottom: 0; }
+        .sc-ai-content pre { background: rgba(0,0,0,0.07); border-radius: 6px; padding: 8px 12px; overflow-x: auto; margin: 8px 0; font-size: 12px; line-height: 1.5; }
+        .sc-ai-content code { background: rgba(0,0,0,0.07); border-radius: 3px; padding: 1px 5px; font-size: 12px; font-family: 'SFMono-Regular',Consolas,monospace; }
+        .sc-ai-content pre code { background: none; padding: 0; }
+        .sc-ai-content ul, .sc-ai-content ol { padding-left: 20px; margin: 4px 0 8px; }
+        .sc-ai-content li { margin: 2px 0; }
+        .sc-ai-content h1,.sc-ai-content h2,.sc-ai-content h3 { margin: 10px 0 4px; font-weight: 600; line-height: 1.3; }
+        .sc-ai-content h1 { font-size: 18px; }
+        .sc-ai-content h2 { font-size: 16px; }
+        .sc-ai-content h3 { font-size: 14px; }
+        .sc-ai-content blockquote { border-left: 3px solid #ccc; padding-left: 10px; margin: 8px 0; color: #888; }
+        .sc-ai-content table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 8px 0; }
+        .sc-ai-content th, .sc-ai-content td { border: 1px solid rgba(0,0,0,0.12); padding: 5px 8px; }
+        .sc-ai-content th { background: rgba(0,0,0,0.05); font-weight: 600; }
+        .sc-ai-content a { color: inherit; text-decoration: underline; opacity: 0.8; }
+        @keyframes scShareSpin { to { transform: rotate(360deg); } }
     </style>
 </head>
 
@@ -2349,6 +2477,9 @@
                 <path fill="currentColor"
                     d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16zm0-9.414l2.828-2.829l1.415 1.415L13.414 12l2.829 2.828l-1.415 1.415L12 13.414l-2.828 2.829l-1.415-1.415L10.586 12L7.757 9.172l1.415-1.415L12 10.586z">
                 </path>
+            </symbol>
+            <symbol viewBox="0 0 24 24" id="shareIcon">
+                <path fill="currentColor" d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
             </symbol>
         </svg>
     </div>
@@ -2702,6 +2833,32 @@
                     <title>清空会话</title>
                     <use xlink:href="#deleteIcon" />
                 </svg></button>
+            <button id="shareConv" title="分享截图"><svg role="img" width="20px" height="20px">
+                    <title>分享截图</title>
+                    <use xlink:href="#shareIcon" />
+                </svg></button>
+        </div>
+    </div>
+
+    <!-- 分享截图 Modal -->
+    <div id="shareModal">
+        <div id="shareModalOverlay"></div>
+        <div id="shareModalBox">
+            <div id="shareModalHeader">
+                <span>分享对话</span>
+                <button id="shareCloseBtn" aria-label="关闭">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div id="sharePreviewScroll">
+                <div id="shareCard"></div>
+            </div>
+            <div id="shareModalFooter">
+                <button id="shareDownloadBtn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;flex-shrink:0"><path d="M4 19h16v-7h2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-8h2v7zM14 9h5l-7 7-7-7h5V3h4v6z"/></svg>
+                    下载图片
+                </button>
+            </div>
         </div>
     </div>
     <link rel="stylesheet" href="https://cdn.staticfile.org/notyf/3.10.0/notyf.min.css">
@@ -5987,6 +6144,149 @@
                 updateChats();
             }
         }
+
+        // ── 分享截图 ───────────────────────────────────────────────────────────
+        const SHARE_PALETTES = {
+            light:  { bg:'#eef0fb', card:'#ffffff', gradFrom:'#6c63ff', gradTo:'#a78bfa', userBg:'#6c63ff', userText:'#ffffff', aiBg:'#f0f0ff', aiText:'#1e1f2e', meta:'#9090b8', border:'#ddddf0' },
+            dark:   { bg:'#0e0f1c', card:'#1a1b2e', gradFrom:'#3d3590', gradTo:'#252640', userBg:'#7c74ff', userText:'#ffffff', aiBg:'#252640', aiText:'#e0e1f0', meta:'#6666aa', border:'#2e2f50' },
+            nature: { bg:'#d6ead7', card:'#ffffff', gradFrom:'#2e7d32', gradTo:'#60b565', userBg:'#2e7d32', userText:'#ffffff', aiBg:'#e8f5e9', aiText:'#1b3a1c', meta:'#5a9a5a', border:'#c8e6cb' },
+            warm:   { bg:'#f5e0c0', card:'#ffffff', gradFrom:'#d97706', gradTo:'#f59e0b', userBg:'#d97706', userText:'#ffffff', aiBg:'#fff3e0', aiText:'#3a2000', meta:'#b08030', border:'#fde8cc' },
+            ocean:  { bg:'#b8d5ea', card:'#ffffff', gradFrom:'#0277bd', gradTo:'#29b6f6', userBg:'#0277bd', userText:'#ffffff', aiBg:'#e3f2fd', aiText:'#01273e', meta:'#4488aa', border:'#b3d9f7' },
+            rose:   { bg:'#f5c8db', card:'#ffffff', gradFrom:'#c2185b', gradTo:'#f06292', userBg:'#c2185b', userText:'#ffffff', aiBg:'#fce4ec', aiText:'#3a0020', meta:'#cc6699', border:'#f5b8d4' },
+        };
+
+        const scEsc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+        const buildShareCard = () => {
+            const p = SHARE_PALETTES[currentTheme] || SHARE_PALETTES.light;
+            const chatData = chatsData[activeChatIdx] || {};
+            const msgs = (chatData.data || []).filter(m => m.role === 'user' || m.role === 'assistant');
+            const chatName = chatData.name || '新的会话';
+            const modelName = modelVersion || 'AI';
+            const d = new Date();
+            const pad = n => String(n).padStart(2,'0');
+            const timeStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+            const cardEl = document.getElementById('shareCard');
+            cardEl.innerHTML = '';
+            cardEl.style.cssText = `background:${p.bg};border-radius:16px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;`;
+
+            // 顶部渐变 Header
+            const header = document.createElement('div');
+            header.style.cssText = `background:linear-gradient(135deg,${p.gradFrom} 0%,${p.gradTo} 100%);padding:22px 26px;`;
+            header.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                    <div style="min-width:0;flex:1;">
+                        <div style="color:rgba(255,255,255,0.75);font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:7px;">NANOCHAT</div>
+                        <div style="color:#fff;font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${scEsc(chatName)}</div>
+                    </div>
+                    <div style="text-align:right;color:rgba(255,255,255,0.7);font-size:12px;flex-shrink:0;">
+                        <div style="margin-bottom:3px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${scEsc(modelName)}</div>
+                        <div>${timeStr}</div>
+                    </div>
+                </div>`;
+            cardEl.appendChild(header);
+
+            // 消息列表
+            const msgsWrap = document.createElement('div');
+            msgsWrap.style.cssText = `padding:20px 22px;display:flex;flex-direction:column;gap:16px;background:${p.card};`;
+
+            if (msgs.length === 0) {
+                msgsWrap.innerHTML = `<div style="text-align:center;color:${p.meta};padding:40px 20px;font-size:13px;">暂无对话内容</div>`;
+            } else {
+                msgs.forEach(msg => {
+                    const isUser = msg.role === 'user';
+                    const row = document.createElement('div');
+                    row.style.cssText = `display:flex;flex-direction:column;align-items:${isUser ? 'flex-end' : 'flex-start'};`;
+
+                    const label = document.createElement('div');
+                    label.style.cssText = `font-size:11px;color:${p.meta};margin-bottom:4px;padding:0 4px;`;
+                    label.textContent = isUser ? '用户' : modelName;
+                    row.appendChild(label);
+
+                    const bubble = document.createElement('div');
+                    if (isUser) {
+                        bubble.style.cssText = `background:${p.userBg};color:${p.userText};padding:10px 15px;border-radius:14px 4px 14px 14px;font-size:14px;line-height:1.65;max-width:88%;white-space:pre-wrap;word-break:break-word;`;
+                        bubble.textContent = msg.content || '';
+                    } else {
+                        bubble.style.cssText = `background:${p.aiBg};color:${p.aiText};padding:10px 15px;border-radius:4px 14px 14px 14px;font-size:14px;line-height:1.65;max-width:88%;word-break:break-word;border:1px solid ${p.border};`;
+                        const inner = document.createElement('div');
+                        inner.className = 'sc-ai-content';
+                        inner.innerHTML = md.render(msg.content || '');
+                        bubble.appendChild(inner);
+                    }
+                    row.appendChild(bubble);
+                    msgsWrap.appendChild(row);
+                });
+            }
+            cardEl.appendChild(msgsWrap);
+
+            // 底部 Footer
+            const footer = document.createElement('div');
+            footer.style.cssText = `padding:13px 26px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid ${p.border};background:${p.bg};`;
+            footer.innerHTML = `
+                <div style="display:flex;align-items:center;gap:6px;color:${p.meta};font-size:12px;">
+                    <div style="width:7px;height:7px;border-radius:50%;background:${p.gradFrom};"></div>
+                    <span>NanoChat</span>
+                </div>
+                <div style="color:${p.meta};font-size:11px;">${msgs.length} 条消息</div>`;
+            cardEl.appendChild(footer);
+        };
+
+        const loadHtml2Canvas = () => new Promise((res, rej) => {
+            if (window.html2canvas) { res(); return; }
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            s.onload = res;
+            s.onerror = () => rej(new Error('html2canvas 加载失败'));
+            document.head.appendChild(s);
+        });
+
+        const openShareModal = () => {
+            buildShareCard();
+            document.getElementById('shareModal').classList.add('active');
+        };
+        const closeShareModal = () => {
+            document.getElementById('shareModal').classList.remove('active');
+        };
+
+        document.getElementById('shareConv').onclick = openShareModal;
+        document.getElementById('shareCloseBtn').onclick = closeShareModal;
+        document.getElementById('shareModalOverlay').onclick = closeShareModal;
+
+        document.getElementById('shareDownloadBtn').onclick = async () => {
+            const btn = document.getElementById('shareDownloadBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;flex-shrink:0;animation:scShareSpin 1s linear infinite"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>生成中…`;
+            try {
+                await loadHtml2Canvas();
+                // 将 shareCard 克隆到 body 上以避免父容器 overflow 截断
+                const card = document.getElementById('shareCard');
+                const clone = card.cloneNode(true);
+                clone.style.cssText += ';position:fixed;left:-9999px;top:0;width:640px;z-index:-1;';
+                document.body.appendChild(clone);
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null,
+                });
+                document.body.removeChild(clone);
+                const safeName = (chatsData[activeChatIdx]?.name || 'nanochat')
+                    .replace(/[^\w\u4e00-\u9fa5]/g, '_').slice(0, 20);
+                const link = document.createElement('a');
+                link.download = `${safeName}-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                notyf.success('截图已保存');
+            } catch(e) {
+                console.error(e);
+                notyf.error('截图生成失败，请重试');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;flex-shrink:0"><path d="M4 19h16v-7h2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-8h2v7zM14 9h5l-7 7-7-7h5V3h4v6z"/></svg>下载图片`;
+            }
+        };
     </script>
 	<link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css" rel="stylesheet">
