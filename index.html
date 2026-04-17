@@ -2217,6 +2217,13 @@
                             <label for="enableLongReply" class="switch-slide-label"></label>
                         </label>
                     </div>
+                    <div>
+                        <span class="inlineTitle">思考模式</span>
+                        <label class="switch-slide">
+                            <input type="checkbox" id="enableThinking" hidden />
+                            <label for="enableThinking" class="switch-slide-label"></label>
+                        </label>
+                    </div>
                     <div class="convActionsRow">
                         <div id="exportChat" class="setFooterBtn">
                             <svg width="16" height="16"><use xlink:href="#exportIcon" /></svg>
@@ -3317,6 +3324,7 @@
         let roleTemp; // 回答质量
         let enableCont; // 是否开启连续对话，默认开启，对话包含上下文信息。
         let enableLongReply; // 是否开启长回复，默认关闭，开启可能导致api费用增加。
+        let enableThinking; // 是否开启思考模式，支持 Claude/DeepSeek 等模型的扩展思考。
         let longReplyFlag;
         let textSpeed; // 打字机速度，越小越快
         let voiceIns; // Audio or SpeechSynthesisUtterance
@@ -3896,6 +3904,17 @@
                 localStorage.setItem("enableLongReply", enableLongReply);
             }
             longEle.dispatchEvent(new Event("change"));
+            const thinkingEle = document.getElementById("enableThinking");
+            let localThinking = localStorage.getItem("enableThinking");
+            if (localThinking) {
+                enableThinking = localThinking === "true";
+                thinkingEle.checked = enableThinking;
+            }
+            thinkingEle.onchange = () => {
+                enableThinking = thinkingEle.checked;
+                localStorage.setItem("enableThinking", enableThinking);
+            }
+            thinkingEle.dispatchEvent(new Event("change"));
         };
         // ── 供应商配置 ──────────────────────────────────────────────────
         // ── i18n ──────────────────────────────────────────────────────────
@@ -3918,7 +3937,7 @@
                 personality:'角色性格', personalityLow:'准确严谨', personalityHigh:'灵活创新',
                 quality:'回答质量', qualityLow:'重复刻板', qualityHigh:'胡言乱语',
                 typeSpeed:'打字机速度', slow:'慢', fast:'快',
-                contChat:'连续对话', longReply:'长回复',
+                contChat:'连续对话', longReply:'长回复', thinkingMode:'思考模式',
                 exportChat:'导出', importChat:'导入', clearChat:'清空',
                 speechService:'语音合成服务', loadingVoice:'加载语音',
                 voiceType:'语音类型', questionVoice:'提问语音', answerVoice:'回答语音',
@@ -3948,7 +3967,7 @@
                 personality:'Personality', personalityLow:'Precise', personalityHigh:'Creative',
                 quality:'Response Quality', qualityLow:'Repetitive', qualityHigh:'Random',
                 typeSpeed:'Typing Speed', slow:'Slow', fast:'Fast',
-                contChat:'Context Memory', longReply:'Long Reply',
+                contChat:'Context Memory', longReply:'Long Reply', thinkingMode:'Thinking Mode',
                 exportChat:'Export', importChat:'Import', clearChat:'Clear',
                 speechService:'Speech Service', loadingVoice:'Loading Voice',
                 voiceType:'Voice Type', questionVoice:'Question Voice', answerVoice:'Answer Voice',
@@ -3978,7 +3997,7 @@
                 personality:'角色性格', personalityLow:'準確嚴謹', personalityHigh:'靈活創新',
                 quality:'回答品質', qualityLow:'重複刻板', qualityHigh:'胡言亂語',
                 typeSpeed:'打字機速度', slow:'慢', fast:'快',
-                contChat:'連續對話', longReply:'長回覆',
+                contChat:'連續對話', longReply:'長回覆', thinkingMode:'思考模式',
                 exportChat:'匯出', importChat:'匯入', clearChat:'清空',
                 speechService:'語音合成服務', loadingVoice:'載入語音',
                 voiceType:'語音類型', questionVoice:'提問語音', answerVoice:'回答語音',
@@ -4008,7 +4027,7 @@
                 personality:'性格', personalityLow:'正確', personalityHigh:'創造的',
                 quality:'回答品質', qualityLow:'繰り返し', qualityHigh:'ランダム',
                 typeSpeed:'タイピング速度', slow:'遅い', fast:'速い',
-                contChat:'会話継続', longReply:'長い返信',
+                contChat:'会話継続', longReply:'長い返信', thinkingMode:'思考モード',
                 exportChat:'エクスポート', importChat:'インポート', clearChat:'クリア',
                 speechService:'音声合成サービス', loadingVoice:'音声を読み込み中',
                 voiceType:'音声タイプ', questionVoice:'質問音声', answerVoice:'回答音声',
@@ -4038,7 +4057,7 @@
                 personality:'성격', personalityLow:'정확', personalityHigh:'창의적',
                 quality:'응답 품질', qualityLow:'반복적', qualityHigh:'무작위',
                 typeSpeed:'타이핑 속도', slow:'느림', fast:'빠름',
-                contChat:'대화 이어가기', longReply:'긴 답변',
+                contChat:'대화 이어가기', longReply:'긴 답변', thinkingMode:'사고 모드',
                 exportChat:'내보내기', importChat:'가져오기', clearChat:'지우기',
                 speechService:'음성 합성 서비스', loadingVoice:'음성 로드 중',
                 voiceType:'음성 유형', questionVoice:'질문 음성', answerVoice:'답변 음성',
@@ -4068,7 +4087,7 @@
                 personality:'Personnalité', personalityLow:'Précis', personalityHigh:'Créatif',
                 quality:'Qualité', qualityLow:'Répétitif', qualityHigh:'Aléatoire',
                 typeSpeed:'Vitesse de frappe', slow:'Lent', fast:'Rapide',
-                contChat:'Mémoire contextuelle', longReply:'Réponse longue',
+                contChat:'Mémoire contextuelle', longReply:'Réponse longue', thinkingMode:'Mode réflexion',
                 exportChat:'Exporter', importChat:'Importer', clearChat:'Effacer',
                 speechService:'Service vocal', loadingVoice:'Chargement de la voix',
                 voiceType:'Type de voix', questionVoice:'Voix question', answerVoice:'Voix réponse',
@@ -4098,7 +4117,7 @@
                 personality:'Persönlichkeit', personalityLow:'Präzise', personalityHigh:'Kreativ',
                 quality:'Antwortqualität', qualityLow:'Repetitiv', qualityHigh:'Zufällig',
                 typeSpeed:'Tippgeschwindigkeit', slow:'Langsam', fast:'Schnell',
-                contChat:'Gesprächsgedächtnis', longReply:'Lange Antwort',
+                contChat:'Gesprächsgedächtnis', longReply:'Lange Antwort', thinkingMode:'Denkmodus',
                 exportChat:'Exportieren', importChat:'Importieren', clearChat:'Leeren',
                 speechService:'Sprachdienst', loadingVoice:'Stimme wird geladen',
                 voiceType:'Stimmentyp', questionVoice:'Fragenstimme', answerVoice:'Antwortstimme',
@@ -4128,7 +4147,7 @@
                 personality:'Personalidad', personalityLow:'Preciso', personalityHigh:'Creativo',
                 quality:'Calidad', qualityLow:'Repetitivo', qualityHigh:'Aleatorio',
                 typeSpeed:'Velocidad de escritura', slow:'Lento', fast:'Rápido',
-                contChat:'Memoria contextual', longReply:'Respuesta larga',
+                contChat:'Memoria contextual', longReply:'Respuesta larga', thinkingMode:'Modo reflexión',
                 exportChat:'Exportar', importChat:'Importar', clearChat:'Limpiar',
                 speechService:'Servicio de voz', loadingVoice:'Cargando voz',
                 voiceType:'Tipo de voz', questionVoice:'Voz pregunta', answerVoice:'Voz respuesta',
@@ -4158,7 +4177,7 @@
                 personality:'Личность', personalityLow:'Точный', personalityHigh:'Творческий',
                 quality:'Качество ответов', qualityLow:'Повторяющийся', qualityHigh:'Случайный',
                 typeSpeed:'Скорость печати', slow:'Медленно', fast:'Быстро',
-                contChat:'Память контекста', longReply:'Длинный ответ',
+                contChat:'Память контекста', longReply:'Длинный ответ', thinkingMode:'Режим мышления',
                 exportChat:'Экспорт', importChat:'Импорт', clearChat:'Очистить',
                 speechService:'Служба синтеза речи', loadingVoice:'Загрузка голоса',
                 voiceType:'Тип голоса', questionVoice:'Голос вопроса', answerVoice:'Голос ответа',
@@ -4188,7 +4207,7 @@
                 personality:'Personalidade', personalityLow:'Preciso', personalityHigh:'Criativo',
                 quality:'Qualidade', qualityLow:'Repetitivo', qualityHigh:'Aleatório',
                 typeSpeed:'Velocidade de digitação', slow:'Lento', fast:'Rápido',
-                contChat:'Memória de contexto', longReply:'Resposta longa',
+                contChat:'Memória de contexto', longReply:'Resposta longa', thinkingMode:'Modo reflexão',
                 exportChat:'Exportar', importChat:'Importar', clearChat:'Limpar',
                 speechService:'Serviço de voz', loadingVoice:'Carregando voz',
                 voiceType:'Tipo de voz', questionVoice:'Voz da pergunta', answerVoice:'Voz da resposta',
@@ -4630,6 +4649,11 @@
             if (enableLongReply) {
                 const sp = enableLongReply.closest('.switch-slide') && enableLongReply.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
                 if (sp) sp.textContent = t.longReply;
+            }
+            const enableThinkingEl = document.getElementById('enableThinking');
+            if (enableThinkingEl) {
+                const sp = enableThinkingEl.closest('.switch-slide') && enableThinkingEl.closest('.switch-slide').parentElement.querySelector('.inlineTitle');
+                if (sp) sp.textContent = t.thinkingMode;
             }
 
             const exportSpan = document.querySelector('#exportChat > span');
@@ -5333,8 +5357,9 @@
                         messages: dataSlice,
                         model: modelVersion,
                         stream: true,
-                        temperature: roleTemp,
-                        top_p: roleNature
+                        temperature: enableThinking ? 1 : roleTemp,
+                        top_p: roleNature,
+                        ...(enableThinking ? { thinking: { type: "enabled", budget_tokens: 16000 } } : {})
                     }),
                     signal: controller.signal
                 });
