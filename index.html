@@ -483,20 +483,23 @@
         }
 
         .bottom_wrapper {
-            position: relative;
             width: 100%;
             background-color: #fff;
             padding: 10px 12px;
             position: absolute;
             bottom: 0;
             border-top: 1px solid #ddddf0;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            box-sizing: border-box;
         }
 
         .bottom_wrapper .message_input_wrapper {
             border: none;
-            width: calc(100% - 143px);
+            flex: 1;
+            min-width: 0;
             position: relative;
-            text-align: left;
         }
 
         .bottom_wrapper .message_input_wrapper .message_input_text {
@@ -536,14 +539,10 @@
             border: none;
             padding: 0;
             color: #fff;
-            cursor: pointer;
+            cursor: not-allowed;
             transition: all 0.2s linear;
             text-align: center;
-            float: right;
-            position: absolute;
-            right: 65px;
-            bottom: 10px;
-            cursor: not-allowed;
+            flex-shrink: 0;
         }
 
         .activeSendBtn {
@@ -555,34 +554,6 @@
             background-color: #5a52e0 !important;
         }
 
-        #clearConv {
-            position: absolute;
-            right: 12px;
-            bottom: 10px;
-            width: 47px;
-            height: 47px;
-            font-size: 16px;
-            display: inline-block;
-            border-radius: 10px;
-            background-color: #8b8fa8;
-            border: 2px solid #8b8fa8;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.2s linear;
-        }
-
-        #clearConv>svg {
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #clearConv:hover {
-            background-color: #6c7090;
-            border: 2px solid #6c7090;
-        }
 
         .loaded>span {
             display: inline-block;
@@ -1872,10 +1843,6 @@
                 padding: 12px;
             }
 
-            .bottom_wrapper .message_input_wrapper {
-                width: calc(100% - 152px);
-            }
-
             .bottom_wrapper .message_input_wrapper .message_input_text {
                 height: 50px;
                 padding-left: 14px;
@@ -1885,14 +1852,6 @@
             #sendbutton {
                 width: 84px;
                 height: 50px;
-                right: 60px;
-                border-radius: 12px;
-            }
-
-            #clearConv {
-                width: 50px;
-                height: 50px;
-                right: 0;
                 border-radius: 12px;
             }
 
@@ -2310,7 +2269,7 @@
             display: flex;
             justify-content: center;
         }
-        #shareCard { width: 100%; max-width: 640px; }
+        #shareCard { width: 640px; }
         #shareModalFooter {
             padding: 14px 20px;
             display: flex;
@@ -2340,6 +2299,21 @@
         html[data-theme="dark"] #shareCloseBtn:hover { background: #252640; }
         html[data-theme="dark"] #sharePreviewScroll { background: #0e0f1c; }
         html[data-theme="dark"] #shareModalFooter { border-color: #2e2f50; }
+        /* 默认仅最后一个气泡展示按钮，其余悬浮显示 */
+        #chatlog > div:not(:last-child) .mdOption {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+        }
+        #chatlog > div:not(:last-child):hover .mdOption {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        /* 选择模式下全部展示 */
+        #chatlog.shareSelectMode > div .mdOption {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
         /* Screenshot card markdown content */
         .sc-ai-content { font-size: 14px; line-height: 1.7; word-break: break-word; }
         .sc-ai-content p { margin: 0 0 8px 0; }
@@ -5367,7 +5341,7 @@
         let currentVoiceIdx;
         const resetSpeakIcon = () => {
             if (currentVoiceIdx !== void 0) {
-                chatlog.children[systemRole ? currentVoiceIdx - 1 : currentVoiceIdx].querySelector(".mdOption").lastChild.className = "readyVoice";
+                chatlog.children[systemRole ? currentVoiceIdx - 1 : currentVoiceIdx].querySelector(".mdOption .readyVoice, .mdOption .pauseVoice, .mdOption .resumeVoice").className = "readyVoice";
             }
         }
         const endSpeak = () => {
@@ -5554,7 +5528,7 @@
                 else {return endSpeak()}
             };
             let type = data[idx].role === "user" ? 0 : 1;
-            chatlog.children[systemRole ? idx - 1 : idx].querySelector(".mdOption").lastChild.className = "pauseVoice";
+            chatlog.children[systemRole ? idx - 1 : idx].querySelector(".mdOption .readyVoice, .mdOption .pauseVoice, .mdOption .resumeVoice").className = "pauseVoice";
             let content = data[idx].content;
             let volume = voiceVolume[type];
             let rate = voiceRate[type];
@@ -5665,8 +5639,9 @@
             }
         }
         const autoSpeechEvent = (content, ele, force = false, end = false) => {
-            if (ele.querySelector(".mdOption").lastChild.className === "readyVoice") {
-                ele.querySelector(".mdOption").lastChild.className = "pauseVoice";
+            const voiceBtn = ele.querySelector(".mdOption .readyVoice, .mdOption .pauseVoice, .mdOption .resumeVoice");
+            if (voiceBtn && voiceBtn.className === "readyVoice") {
+                voiceBtn.className = "pauseVoice";
             }
             if (existVoice >= 2) {
                 voiceContentQuene.push(content);
@@ -6257,9 +6232,9 @@
                         <div style="color:rgba(255,255,255,0.75);font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:7px;">NANOCHAT</div>
                         <div style="color:#fff;font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${scEsc(chatName)}</div>
                     </div>
-                    <div style="text-align:right;color:rgba(255,255,255,0.7);font-size:12px;flex-shrink:0;">
-                        <div style="margin-bottom:3px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${scEsc(modelName)}</div>
-                        <div>${timeStr}</div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:rgba(255,255,255,0.75);font-size:12px;flex-shrink:0;max-width:180px;">
+                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${scEsc(modelName)}</div>
+                        <div style="white-space:nowrap;opacity:0.85;">${timeStr}</div>
                     </div>
                 </div>`;
             cardEl.appendChild(header);
@@ -6336,18 +6311,17 @@
             btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;flex-shrink:0;animation:scShareSpin 1s linear infinite"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>生成中…`;
             try {
                 await loadHtml2Canvas();
-                // 将 shareCard 克隆到 body 上以避免父容器 overflow 截断
                 const card = document.getElementById('shareCard');
-                const clone = card.cloneNode(true);
-                clone.style.cssText += ';position:fixed;left:-9999px;top:0;width:640px;z-index:-1;';
-                document.body.appendChild(clone);
-                const canvas = await html2canvas(clone, {
+                const canvas = await html2canvas(card, {
                     scale: 2,
                     useCORS: true,
                     logging: false,
                     backgroundColor: null,
+                    scrollX: 0,
+                    scrollY: 0,
+                    width: card.offsetWidth,
+                    height: card.scrollHeight,
                 });
-                document.body.removeChild(clone);
                 const safeName = (chatsData[activeChatIdx]?.name || 'nanochat')
                     .replace(/[^\w\u4e00-\u9fa5]/g, '_').slice(0, 20);
                 const link = document.createElement('a');
