@@ -2829,10 +2829,6 @@
                     <use xlink:href="#loadingIcon" />
                 </svg>
             </button>
-            <button id="clearConv"><svg role="img" width="20px" height="20px">
-                    <title>清空会话</title>
-                    <use xlink:href="#deleteIcon" />
-                </svg></button>
             <button id="shareConv" title="分享截图"><svg role="img" width="20px" height="20px">
                     <title>分享截图</title>
                     <use xlink:href="#shareIcon" />
@@ -6135,15 +6131,6 @@
         };
         sendBtnEle.onclick = genFunc;
         stopEle.onclick = stopLoading;
-        document.getElementById("clearConv").onclick = () => {
-            if (!loading && confirmAction("是否清空会话?")) {
-                endSpeak();
-                if (systemRole) {data.length = 1}
-                else {data.length = 0}
-                chatlog.innerHTML = "";
-                updateChats();
-            }
-        }
 
         // ── 分享截图 ───────────────────────────────────────────────────────────
         const SHARE_PALETTES = {
