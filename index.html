@@ -1329,25 +1329,38 @@
         }
 
         .mdOption {
-            position: absolute;
-            right: 5px;
-            bottom: 0px;
-            pointer-events: none;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding-top: 8px;
         }
 
         .mdOption>div {
-            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             pointer-events: auto;
             cursor: pointer;
+            transition: background 0.15s;
         }
 
-        .mdOption>div>svg {
-            color: #c8cce0;
+        .mdOption>div svg {
+            color: #c0c4dc;
             display: block;
+            transition: color 0.15s;
         }
 
-        .mdOption svg:hover {
-            color: #7b7d9a;
+        .mdOption>div:hover {
+            background: #eeeeff;
+        }
+
+        .mdOption>div:hover svg {
+            color: #6c63ff;
         }
 
         .mdOption svg * {
@@ -1360,74 +1373,6 @@
 
         .halfRefReq svg:not(:nth-child(2)) {
             display: none;
-        }
-
-        .moreOption {
-            position: relative;
-        }
-
-        .optionItems {
-            position: absolute;
-            top: -8px;
-            display: flex;
-            justify-content: space-between;
-            visibility: hidden;
-            z-index: 1;
-            color: #6c63ff;
-        }
-
-        .moreOptionHidden>div {
-            display: none !important;
-        }
-
-        .optionItems:hover {
-            visibility: visible;
-        }
-
-        .optionItems:hover .optionItem {
-            transform: scale(1);
-            visibility: visible;
-        }
-
-        .optionTrigger:hover+.optionItems .optionItem:nth-of-type(3) {
-            transform: scale(1);
-            visibility: visible;
-            transition-delay: 50ms;
-            transition-duration: 60ms;
-        }
-
-        .optionTrigger:hover+.optionItems .optionItem:nth-of-type(2) {
-            visibility: visible;
-            transition-delay: 80ms;
-            transform: scale(1);
-            transition-duration: 60ms;
-        }
-
-        .optionTrigger:hover+.optionItems .optionItem:nth-of-type(1) {
-            visibility: visible;
-            transition-delay: 110ms;
-            transform: scale(1);
-            transition-duration: 60ms;
-        }
-
-        .optionItem {
-            border-radius: 6px;
-            height: 30px;
-            width: 30px;
-            background-color: #f3f4fd;
-            visibility: hidden;
-            transform: scale(0);
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .optionItem * {
-            pointer-events: none;
-        }
-
-        .optionItem:hover {
-            background: #e8e6ff;
         }
 
         .readyVoice svg:not(:first-child) {
@@ -2116,9 +2061,9 @@
         html[data-theme="dark"] .aboutLinkBtn { background: #20213a; border-color: #2e2f50; color: #b09eff; }
         html[data-theme="dark"] .setFooterBtn { background: #20213a; border-color: #2e2f50; color: #e0e1f0; }
         html[data-theme="dark"] .setFooterBtn.danger { color: #ff6b6b; }
-        html[data-theme="dark"] .optionItems { background: #20213a; border-color: #2e2f50; }
-        html[data-theme="dark"] .optionItem { color: #e0e1f0; }
-        html[data-theme="dark"] .optionItem:hover { background: #252640; }
+        html[data-theme="dark"] .mdOption>div svg { color: #555580; }
+        html[data-theme="dark"] .mdOption>div:hover { background: #252640; }
+        html[data-theme="dark"] .mdOption>div:hover svg { color: #a78bfa; }
         html[data-theme="dark"] .fetchModelsBtn { border-color: #2e2f50; color: #8888aa; }
         html[data-theme="dark"] .providerModelChip { background: #252640; border-color: #2e2f50; color: #b09eff; }
         html[data-theme="dark"] #htmlPreviewBar { background: #14152a; border-color: #2e2f50; }
@@ -3957,12 +3902,10 @@
                         }
                     }
                 } else if (id === "copyMd") {
-                    idxEle.classList.add("moreOptionHidden");
                     idx = systemRole ? idx + 1 : idx;
                     copyClickMd(idx);
                     notyf.success("复制成功");
                 } else if (id === "delMd") {
-                    idxEle.classList.add("moreOptionHidden");
                     if (!loading) {
                         if (confirmAction("是否删除此消息?")) {
                             if (currentVoiceIdx) {
@@ -3976,7 +3919,6 @@
                         }
                     }
                 } else if (id === "downAudio") {
-                    idxEle.classList.add("moreOptionHidden");
                     if (chatlog.children[idx].dataset.loading !== "true") {
                         idx = systemRole ? idx + 1 : idx;
                         downloadAudio(idx);
@@ -4013,25 +3955,21 @@
             ele.appendChild(mdOption);
 			
             if (ele.className !== "request") {
-                mdOption.innerHTML = `<div class="refreshReq">
+                mdOption.innerHTML = `<div class="refreshReq" title="刷新">
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>刷新</title><use xlink:href="#refreshIcon" /></svg>
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>继续</title><use xlink:href="#halfRefIcon" /></svg>
                     </div>`
             }
-			
-            let optionWidth = existVoice >= 2 ? "96px" : "63px";
-            mdOption.innerHTML += `<div class="moreOption" onmouseenter="moreOption(this)">
-            <svg class="optionTrigger" width="16" height="16" role="img"><title>选项</title><use xlink:href="#optionIcon" /></svg>
-            <div class="optionItems" style="width:${optionWidth};left:-${optionWidth}">` + (existVoice >= 2 ? `<div data-id="downAudio" class="optionItem" title="下载语音">
-                <svg width="20" height="20"><use xlink:href="#downAudioIcon" /></svg>
-            </div>` : "") + `<div data-id="delMd" class="optionItem" title="删除">
-                <svg width="20" height="20"><use xlink:href="#delIcon" /></svg>
+            mdOption.innerHTML += `<div title="复制">
+                <svg data-id="copyMd" width="16" height="16" role="img"><title>复制</title><use xlink:href="#copyIcon" /></svg>
             </div>
-            <div data-id="copyMd" class="optionItem" title="复制">
-                <svg width="20" height="20"><use xlink:href="#copyIcon" /></svg>
-            </div></div></div>`;
+            <div title="删除">
+                <svg data-id="delMd" width="16" height="16" role="img"><title>删除</title><use xlink:href="#delIcon" /></svg>
+            </div>` + (existVoice >= 2 ? `<div title="下载语音">
+                <svg data-id="downAudio" width="16" height="16"><use xlink:href="#downAudioIcon" /></svg>
+            </div>` : "");
             if (existVoice) {
-                mdOption.innerHTML += `<div id="pronMd" class="readyVoice">
+                mdOption.innerHTML += `<div class="readyVoice" title="朗读">
                 <svg width="16" height="16" data-id="voiceMd" role="img"><title>朗读</title><use xlink:href="#readyVoiceIcon" /></svg>
                 <svg width="16" height="16" data-id="voiceMd" role="img"><title>暂停</title><use xlink:href="#pauseVoiceIcon" /></svg>
                 <svg width="16" height="16" data-id="voiceMd" role="img"><title>继续</title><use xlink:href="#resumeVoiceIcon" /></svg>
