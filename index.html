@@ -1579,7 +1579,7 @@
         .chatLi {
             cursor: pointer;
             width: 100%;
-            height: 52px;
+            height: 62px;
             color: #7b7d9a;
             display: flex;
             justify-content: space-between;
@@ -1604,16 +1604,29 @@
             pointer-events: none;
         }
 
-        .chatLi .chatName {
+        .chatLi .chatInfo {
             position: absolute;
             left: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 125px;
+        }
+
+        .chatLi .chatName {
             color: #1e1f2e;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            max-width: 125px;
             line-height: 20px;
             height: 20px;
+        }
+
+        .chatLi .chatTime {
+            font-size: 11px;
+            color: #aaaacc;
+            line-height: 16px;
+            white-space: nowrap;
         }
 
         .chatLi .chatOption {
@@ -2068,6 +2081,7 @@
         html[data-theme="dark"] #newChat > svg { color: #b09eff; }
         html[data-theme="dark"] .chatLi { color: #8888aa; }
         html[data-theme="dark"] .chatLi .chatName { color: #e0e1f0; }
+        html[data-theme="dark"] .chatLi .chatTime { color: #6666aa; }
         html[data-theme="dark"] .chatLi:hover { background: #252640; }
         html[data-theme="dark"] .activeChatLi { background: #2a2b50 !important; }
         html[data-theme="dark"] .divider { background: #2e2f50; }
@@ -3871,22 +3885,36 @@
         let chatsData = [];
         let activeChatIdx = 0;
         let data;
-        const chatEleAdd = (idx) => {
+        const formatChatTime = (ts) => {
+            if (!ts) return '';
+            const d = new Date(ts);
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        };
+        const chatEleAdd = (idx, prepend = false) => {
             let chat = chatsData[idx];
             let chatEle = document.createElement("div");
             chatEle.className = "chatLi";
+            const timeStr = chat.createdAt ? formatChatTime(chat.createdAt) : '';
             chatEle.innerHTML = `<svg width="24" height="24"><use xlink:href="#chatIcon" /></svg>
-                <div class="chatName">${chat.name}</div>
+                <div class="chatInfo">
+                    <div class="chatName">${chat.name}</div>
+                    ${timeStr ? `<div class="chatTime">${timeStr}</div>` : ''}
+                </div>
                 <div class="chatOption"><svg data-type="chatEdit" style="margin-right:4px" width="24" height="24" role="img"><title>编辑</title><use xlink:href="#chatEditIcon" /></svg>
                 <svg data-type="chatDel" width="24" height="24" role="img"><title>删除</title><use xlink:href="#delIcon" /></svg></div>`
-            chatListEle.appendChild(chatEle);
+            if (prepend) {
+                chatListEle.insertBefore(chatEle, chatListEle.firstChild);
+            } else {
+                chatListEle.appendChild(chatEle);
+            }
             chatEle.onclick = chatEleEvent;
             return chatEle;
         };
         const addNewChat = () => {
             const t = TRANSLATIONS[currentLang] || TRANSLATIONS['zh-CN'];
-            let chat = {name: t.newChatTitle, data: []};
-            chatsData.push(chat);
+            let chat = {name: t.newChatTitle, data: [], createdAt: Date.now()};
+            chatsData.unshift(chat);
             updateChats();
         };
         const delChat = (idx) => {
@@ -3915,7 +3943,7 @@
             if (!activeEle.contains(ev.target)) {
                 let ele = chatListEle.children[activeChatIdx];
                 chatsData[activeChatIdx].name = activeEle.value;
-                ele.children[1].textContent = activeEle.value;
+                ele.querySelector('.chatName').textContent = activeEle.value;
                 ele.lastElementChild.remove();
                 updateChats();
                 document.body.removeEventListener("mousedown", endEditEvent, true);
@@ -3948,6 +3976,8 @@
         };
         const updateChats = () => {
             localStorage.setItem("chats", JSON.stringify(chatsData));
+            const activeTs = chatsData[activeChatIdx]?.createdAt;
+            if (activeTs) localStorage.setItem("activeCreatedAt", String(activeTs));
         };
         const createConvEle = (className) => {
             let div = document.createElement("div");
@@ -3992,21 +4022,26 @@
                     }
                 }
             }
-            localStorage.setItem("activeChatIdx", activeChatIdx);
         };
         newChatEle.onclick = () => {
             endAll();
             addNewChat();
-            activeChatIdx = chatsData.length - 1;
-            chatEleAdd(activeChatIdx);
+            activeChatIdx = 0;
+            chatEleAdd(0, true);
             activeChat();
         };
         const initChats = () => {
             let localChats = localStorage.getItem("chats");
-            let localChatIdx = localStorage.getItem("activeChatIdx")
-            activeChatIdx = (localChatIdx && parseInt(localChatIdx)) || 0;
+            let localActiveTs = localStorage.getItem("activeCreatedAt");
             if (localChats) {
                 chatsData = JSON.parse(localChats);
+                chatsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                if (localActiveTs) {
+                    let idx = chatsData.findIndex(c => String(c.createdAt) === localActiveTs);
+                    activeChatIdx = idx >= 0 ? idx : 0;
+                } else {
+                    activeChatIdx = 0;
+                }
                 for (let i = 0; i < chatsData.length; i++) {
                     chatEleAdd(i);
                 }
@@ -4050,8 +4085,14 @@
                     if (checked) {
                         while (json.length) {
                             chatsData.push(json.shift());
-                            chatEleAdd(chatsData.length - 1);
                         }
+                        chatsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                        chatListEle.innerHTML = '';
+                        for (let i = 0; i < chatsData.length; i++) {
+                            chatEleAdd(i);
+                        }
+                        activeChatIdx = 0;
+                        activeChat();
                         updateChats();
                     } else {
                         throw new Error("格式检查不通过")
@@ -5898,7 +5939,7 @@
                     message = message.slice(0, 47) + "...";
                 }
                 chatsData[activeChatIdx].name = message;
-                chatListEle.children[activeChatIdx].children[1].textContent = message;
+                chatListEle.children[activeChatIdx].querySelector('.chatName').textContent = message;
             }
             updateChats();
             scrollToBottom();
