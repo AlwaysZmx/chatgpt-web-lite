@@ -2801,13 +2801,18 @@
             voiceRecEle.addEventListener("touchend", voiceUpEvent);
         }
         document.getElementsByClassName("setSwitch")[0].onclick = function (ev) {
-            let activeEle = this.getElementsByClassName("activeSwitch")[0];
-            if (ev.target !== activeEle) {
+            const target = ev.target.closest('[data-id]');
+            if (!target || !target.dataset.id) return;
+            const activeEle = this.getElementsByClassName("activeSwitch")[0];
+            if (target === activeEle) return;
+            if (activeEle) {
                 activeEle.classList.remove("activeSwitch");
-                ev.target.classList.add("activeSwitch");
-                document.getElementById(ev.target.dataset.id).style.display = "block";
-                document.getElementById(activeEle.dataset.id).style.display = "none";
+                const prevPanel = document.getElementById(activeEle.dataset.id);
+                if (prevPanel) prevPanel.style.display = "none";
             }
+            target.classList.add("activeSwitch");
+            const nextPanel = document.getElementById(target.dataset.id);
+            if (nextPanel) nextPanel.style.display = "block";
         }
         let localVoiceType = localStorage.getItem("existVoice");
         if (localVoiceType) {
