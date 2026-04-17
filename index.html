@@ -5128,6 +5128,11 @@
         // ─────────────────────────────────────────────────────────────────────
 
         // ────────────────────────────────────────────────────────────────
+        // 从 localStorage 恢复运行时 API 配置变量（页面刷新后立即生效）
+        apiHost = localStorage.getItem("APIHost") || "";
+        customAPIKey = localStorage.getItem("APIKey") || "";
+        modelVersion = localStorage.getItem("modelVersion") || "";
+
         initSetting();
         initProviderSetting();
         initThemeSetting();
