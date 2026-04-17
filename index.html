@@ -2178,21 +2178,75 @@
         html[data-theme="rose"] .thinkingBlock.done .thinkingDot { background: #c2185b; }
         html[data-theme="rose"] input[type=range] { accent-color: #c2185b; }
 
-        /* ── Share Button ── */
-        #shareConv {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #7b7d9a;
-            padding: 8px;
+        /* ── Share Select Bar ── */
+        #shareSelectBar {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 20px;
+            background: #6c63ff;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        #shareSelectBar.active { display: flex; }
+        #shareSelectBar .ssCount { font-size: 14px; font-weight: 500; white-space: nowrap; }
+        #shareSelectBar .ssBtns { display: flex; gap: 8px; align-items: center; }
+        #shareSelectBar .ssBtn {
+            padding: 6px 13px;
             border-radius: 8px;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+            transition: background 0.15s;
         }
-        #shareConv:hover { background: #eeeeff; color: #6c63ff; }
-        html[data-theme="dark"] #shareConv:hover { background: #252640; color: #a78bfa; }
+        #shareSelectBar .ssBtnSec { background: rgba(255,255,255,0.22); color: #fff; }
+        #shareSelectBar .ssBtnSec:hover { background: rgba(255,255,255,0.35); }
+        #shareSelectBar .ssBtnPri { background: #fff; color: #6c63ff; }
+        #shareSelectBar .ssBtnPri:hover { background: #f0f0ff; }
+        /* Selection mode on chatlog */
+        #chatlog.shareSelectMode > div {
+            cursor: pointer;
+            user-select: none;
+            border-left: 3px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
+            box-sizing: border-box;
+        }
+        #chatlog.shareSelectMode > div::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #c0c4dc;
+            background: rgba(255,255,255,0.9);
+            pointer-events: none;
+            transition: all 0.15s;
+            z-index: 1;
+        }
+        #chatlog.shareSelectMode > div:hover { border-left-color: #a0a0f0; }
+        #chatlog.shareSelectMode > div:hover::after { border-color: #9090e0; }
+        #chatlog.shareSelectMode > div.shareSelected {
+            border-left-color: #6c63ff !important;
+            background: rgba(108,99,255,0.07) !important;
+        }
+        #chatlog.shareSelectMode > div.shareSelected::after {
+            border-color: #6c63ff;
+            background: #6c63ff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") center/13px no-repeat;
+        }
+        html[data-theme="dark"] #chatlog.shareSelectMode > div::after { background: rgba(30,31,46,0.9); border-color: #444470; }
+        html[data-theme="dark"] #chatlog.shareSelectMode > div.shareSelected { background: rgba(124,116,255,0.12) !important; border-left-color: #7c74ff !important; }
+        html[data-theme="dark"] #chatlog.shareSelectMode > div.shareSelected::after { background: #7c74ff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") center/13px no-repeat; border-color: #7c74ff; }
+        html[data-theme="dark"] #shareSelectBar { background: #3d3590; }
 
         /* ── Share Modal ── */
         #shareModal {
@@ -2424,7 +2478,7 @@
                 </path>
             </symbol>
             <symbol viewBox="0 0 24 24" id="shareIcon">
-                <path fill="currentColor" d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                <path fill="currentColor" d="M13 4.83V13h-2V4.83L8.83 7 7.41 5.59 12 1l4.59 4.59L15.17 7 13 4.83zM5 20v-8H3v10h18V12h-2v8H5z"/>
             </symbol>
         </svg>
     </div>
@@ -2742,6 +2796,17 @@
             </div>
         </div>
         <div class="messages">
+            <div id="shareSelectBar">
+                <span class="ssCount">已选 <b id="shareSelectNum">0</b> 条消息</span>
+                <div class="ssBtns">
+                    <button id="shareSelectAll" class="ssBtn ssBtnSec">全选</button>
+                    <button id="shareSelectCancel" class="ssBtn ssBtnSec">取消</button>
+                    <button id="shareSelectConfirm" class="ssBtn ssBtnPri">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px"><path d="M13 4.83V13h-2V4.83L8.83 7 7.41 5.59 12 1l4.59 4.59L15.17 7 13 4.83zM5 20v-8H3v10h18V12h-2v8H5z"/></svg>
+                        生成截图
+                    </button>
+                </div>
+            </div>
             <div id="chatlog"></div>
             <div id="stopChat"><svg width="24" height="24">
                     <use xlink:href="#stopResIcon" />
@@ -2774,10 +2839,6 @@
                     <use xlink:href="#loadingIcon" />
                 </svg>
             </button>
-            <button id="shareConv" title="分享截图"><svg role="img" width="20px" height="20px">
-                    <title>分享截图</title>
-                    <use xlink:href="#shareIcon" />
-                </svg></button>
         </div>
     </div>
 
@@ -3923,6 +3984,12 @@
                         idx = systemRole ? idx + 1 : idx;
                         downloadAudio(idx);
                     }
+                } else if (id === "shareMd") {
+                    if (shareMode) {
+                        toggleShareSelection(idx);
+                    } else {
+                        enterShareMode(idx);
+                    }
                 }
             }
         }
@@ -3975,6 +4042,9 @@
                 <svg width="16" height="16" data-id="voiceMd" role="img"><title>继续</title><use xlink:href="#resumeVoiceIcon" /></svg>
                 </div>`
             }
+            mdOption.innerHTML += `<div title="分享截图">
+                <svg data-id="shareMd" width="16" height="16" role="img"><title>分享截图</title><use xlink:href="#shareIcon" /></svg>
+            </div>`;
             mdOption.onclick = mdOptionEvent;
         }
         let chatsData = [];
@@ -6071,6 +6141,88 @@
         stopEle.onclick = stopLoading;
 
         // ── 分享截图 ───────────────────────────────────────────────────────────
+        let shareMode = false;
+        let shareSelectedSet = new Set();
+
+        const updateShareSelectCount = () => {
+            document.getElementById('shareSelectNum').textContent = shareSelectedSet.size;
+        };
+
+        const toggleShareSelection = (domIdx) => {
+            const bubble = chatlog.children[domIdx];
+            if (!bubble) return;
+            if (shareSelectedSet.has(domIdx)) {
+                shareSelectedSet.delete(domIdx);
+                bubble.classList.remove('shareSelected');
+            } else {
+                shareSelectedSet.add(domIdx);
+                bubble.classList.add('shareSelected');
+            }
+            updateShareSelectCount();
+        };
+
+        const enterShareMode = (startDomIdx) => {
+            shareMode = true;
+            shareSelectedSet.clear();
+            Array.from(chatlog.children).forEach(c => c.classList.remove('shareSelected'));
+            chatlog.classList.add('shareSelectMode');
+            document.getElementById('shareSelectBar').classList.add('active');
+            document.getElementById('shareSelectAll').textContent = '全选';
+            toggleShareSelection(startDomIdx);
+        };
+
+        const exitShareMode = () => {
+            shareMode = false;
+            shareSelectedSet.clear();
+            Array.from(chatlog.children).forEach(c => c.classList.remove('shareSelected'));
+            chatlog.classList.remove('shareSelectMode');
+            document.getElementById('shareSelectBar').classList.remove('active');
+        };
+
+        // 点击气泡区域（非按钮）时切换选中状态
+        chatlog.addEventListener('click', (ev) => {
+            if (!shareMode) return;
+            if (ev.target.closest('.mdOption')) return;
+            const bubble = ev.target.closest('#chatlog > div');
+            if (!bubble) return;
+            const idx = Array.prototype.indexOf.call(chatlog.children, bubble);
+            if (idx >= 0) toggleShareSelection(idx);
+        });
+
+        document.getElementById('shareSelectAll').onclick = () => {
+            const btn = document.getElementById('shareSelectAll');
+            const allSelected = shareSelectedSet.size === chatlog.children.length;
+            shareSelectedSet.clear();
+            Array.from(chatlog.children).forEach((c, i) => {
+                c.classList.remove('shareSelected');
+                if (!allSelected) {
+                    shareSelectedSet.add(i);
+                    c.classList.add('shareSelected');
+                }
+            });
+            updateShareSelectCount();
+            btn.textContent = allSelected ? '全选' : '取消全选';
+        };
+
+        document.getElementById('shareSelectCancel').onclick = exitShareMode;
+
+        document.getElementById('shareSelectConfirm').onclick = () => {
+            if (shareSelectedSet.size === 0) {
+                notyf.error('请至少选择一条消息');
+                return;
+            }
+            const chatData = chatsData[activeChatIdx] || {};
+            const allMsgs = chatData.data || [];
+            const sortedDomIdxs = [...shareSelectedSet].sort((a, b) => a - b);
+            const selectedMsgs = sortedDomIdxs.map(domIdx => {
+                const dataIdx = (systemRole && allMsgs[0]?.role === 'system') ? domIdx + 1 : domIdx;
+                return allMsgs[dataIdx];
+            }).filter(m => m && (m.role === 'user' || m.role === 'assistant'));
+            exitShareMode();
+            buildShareCard(selectedMsgs);
+            document.getElementById('shareModal').classList.add('active');
+        };
+
         const SHARE_PALETTES = {
             light:  { bg:'#eef0fb', card:'#ffffff', gradFrom:'#6c63ff', gradTo:'#a78bfa', userBg:'#6c63ff', userText:'#ffffff', aiBg:'#f0f0ff', aiText:'#1e1f2e', meta:'#9090b8', border:'#ddddf0' },
             dark:   { bg:'#0e0f1c', card:'#1a1b2e', gradFrom:'#3d3590', gradTo:'#252640', userBg:'#7c74ff', userText:'#ffffff', aiBg:'#252640', aiText:'#e0e1f0', meta:'#6666aa', border:'#2e2f50' },
@@ -6082,10 +6234,10 @@
 
         const scEsc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-        const buildShareCard = () => {
+        const buildShareCard = (customMsgs) => {
             const p = SHARE_PALETTES[currentTheme] || SHARE_PALETTES.light;
             const chatData = chatsData[activeChatIdx] || {};
-            const msgs = (chatData.data || []).filter(m => m.role === 'user' || m.role === 'assistant');
+            const msgs = customMsgs || (chatData.data || []).filter(m => m.role === 'user' || m.role === 'assistant');
             const chatName = chatData.name || '新的会话';
             const modelName = modelVersion || 'AI';
             const d = new Date();
@@ -6175,7 +6327,6 @@
             document.getElementById('shareModal').classList.remove('active');
         };
 
-        document.getElementById('shareConv').onclick = openShareModal;
         document.getElementById('shareCloseBtn').onclick = closeShareModal;
         document.getElementById('shareModalOverlay').onclick = closeShareModal;
 
