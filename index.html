@@ -1950,6 +1950,270 @@
                 justify-content: center;
             }
         }
+
+        /* ═══ 主题卡片 ═══════════════════════════════════════════════════════ */
+        #themeCards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .themeCard {
+            border: 1px solid #ddddf0;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .themeCard:hover { border-color: #a78bfa; }
+
+        .themeCard.activeTheme {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 2px rgba(108,99,255,0.12);
+        }
+
+        .themePalette {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .themeDot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .themeInfo { flex: 1; }
+
+        .themeName {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e1f2e;
+        }
+
+        .themeCheck {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #ddddf0;
+            flex-shrink: 0;
+            position: relative;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .themeCard.activeTheme .themeCheck {
+            border-color: #6c63ff;
+            background: #6c63ff;
+        }
+
+        .themeCard.activeTheme .themeCheck::after {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: 1px;
+            width: 5px;
+            height: 8px;
+            border: 2px solid #fff;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg);
+        }
+
+        /* ═══ 深色主题 ════════════════════════════════════════════════════════ */
+        html[data-theme="dark"] { color-scheme: dark; }
+        html[data-theme="dark"] body { background-color: #111118; }
+        html[data-theme="dark"] .chat_window { background-color: #1a1b2e; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        html[data-theme="dark"] .top_menu { background-color: #14152a; border-color: #2e2f50; }
+        html[data-theme="dark"] .top_menu .title { color: #8888aa; }
+        html[data-theme="dark"] .nav { background-color: #14152a; border-color: #2e2f50; }
+        html[data-theme="dark"] .messages { color: #e0e1f0; }
+        html[data-theme="dark"] #chatlog .response { background: #20213a; }
+        html[data-theme="dark"] .response .markdown-body { background: #20213a !important; }
+        html[data-theme="dark"] .requestBody { color: #e0e1f0; }
+        html[data-theme="dark"] .thinkingBlock { background: #20213a; border-color: #2e2f50; }
+        html[data-theme="dark"] .thinkingHeader { background: #252640; color: #8888aa; }
+        html[data-theme="dark"] .thinkingHeader:hover { background: #2a2b50; }
+        html[data-theme="dark"] .thinkingContent { color: #7a7aaa; border-color: #2e2f50; }
+        html[data-theme="dark"] .bottom_wrapper { background-color: #1a1b2e; border-color: #2e2f50; }
+        html[data-theme="dark"] .message_input_text { background: #20213a; color: #e0e1f0; border-color: #2e2f50; }
+        html[data-theme="dark"] .message_input_text:focus { background: #252640; border-color: #7c74ff; }
+        html[data-theme="dark"] .message_input_text::placeholder { color: #555570; }
+        html[data-theme="dark"] #sendbutton { background-color: #5a52c8; }
+        html[data-theme="dark"] .activeSendBtn { background-color: #7c74ff !important; }
+        html[data-theme="dark"] .activeSendBtn:hover { background-color: #6a62f0 !important; }
+        html[data-theme="dark"] #stopChat { background: #252640; color: #e0e1f0; }
+        html[data-theme="dark"] #clearConv { border-color: #2e2f50; color: #8888aa; }
+        html[data-theme="dark"] .setSwitch { background: #252640; border-color: #2e2f50; }
+        html[data-theme="dark"] .setSwitch > div { color: #8888aa; }
+        html[data-theme="dark"] .setSwitch > div:hover { background-color: #2a2b50; color: #b09eff; }
+        html[data-theme="dark"] .activeSwitch { background-color: #1a1b2e !important; color: #b09eff !important; }
+        html[data-theme="dark"] #setDialog { background-color: #1a1b2e; }
+        html[data-theme="dark"] #setDialogHeader { border-color: #2e2f50; }
+        html[data-theme="dark"] .setTitle { color: #e0e1f0; }
+        html[data-theme="dark"] #setDialogClose { color: #8888aa; }
+        html[data-theme="dark"] #setDialogContent { background-color: #1a1b2e; }
+        html[data-theme="dark"] #setDialogContent > div > div:not(.providerCard):not(.langCard):not(.themeCard):not(.aboutFeatureItem) { color: #e0e1f0; }
+        html[data-theme="dark"] .inputTextClass { background: #20213a !important; color: #e0e1f0 !important; border-color: #2e2f50 !important; }
+        html[data-theme="dark"] .areaTextClass { background: #20213a !important; color: #e0e1f0 !important; }
+        html[data-theme="dark"] select { background: #20213a; color: #e0e1f0; border-color: #2e2f50; }
+        html[data-theme="dark"] #newChat { color: #e0e1f0; }
+        html[data-theme="dark"] #newChat:hover { background: #252640 !important; }
+        html[data-theme="dark"] #newChat > svg { color: #b09eff; }
+        html[data-theme="dark"] .chatLi { color: #8888aa; }
+        html[data-theme="dark"] .chatLi .chatName { color: #e0e1f0; }
+        html[data-theme="dark"] .chatLi:hover { background: #252640; }
+        html[data-theme="dark"] .activeChatLi { background: #2a2b50 !important; }
+        html[data-theme="dark"] .divider { background: #2e2f50; }
+        html[data-theme="dark"] .links a { color: #555570; }
+        html[data-theme="dark"] .markdown-body { color: #e0e1f0; }
+        html[data-theme="dark"] .markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6 { color: #e0e1f0; border-color: #2e2f50; }
+        html[data-theme="dark"] .markdown-body a { color: #b09eff; }
+        html[data-theme="dark"] .markdown-body code { background: #2a2b50; color: #b09eff; }
+        html[data-theme="dark"] .markdown-body pre { background: #14152a !important; }
+        html[data-theme="dark"] .markdown-body blockquote { border-color: #7c74ff; color: #8888aa; background: #20213a; }
+        html[data-theme="dark"] .markdown-body table tr { background: #20213a; border-color: #2e2f50; }
+        html[data-theme="dark"] .markdown-body table tr:nth-child(2n) { background: #252640; }
+        html[data-theme="dark"] .markdown-body table td, html[data-theme="dark"] .markdown-body table th { border-color: #2e2f50; }
+        html[data-theme="dark"] .markdown-body hr { background: #2e2f50; border-color: #2e2f50; }
+        html[data-theme="dark"] .markdown-body li::marker { color: #8888aa; }
+        html[data-theme="dark"] .m-mdic-copy-wrapper button { background: #252640; color: #8888aa; border-color: #2e2f50; }
+        html[data-theme="dark"] .providerCard { background: #20213a; border-color: #2e2f50; }
+        html[data-theme="dark"] .providerCard .providerName { color: #e0e1f0; }
+        html[data-theme="dark"] .providerCard .providerDesc { color: #8888aa; }
+        html[data-theme="dark"] .providerCard .providerCheck { border-color: #2e2f50; }
+        html[data-theme="dark"] .langCard, html[data-theme="dark"] .themeCard { background: #20213a; border-color: #2e2f50; }
+        html[data-theme="dark"] .langName, html[data-theme="dark"] .themeName { color: #e0e1f0; }
+        html[data-theme="dark"] .langCode { color: #8888aa; }
+        html[data-theme="dark"] .langCheck, html[data-theme="dark"] .themeCheck { border-color: #2e2f50; }
+        html[data-theme="dark"] .aboutDesc { color: #8888aa; border-color: #2e2f50; }
+        html[data-theme="dark"] .aboutAppName { color: #e0e1f0; }
+        html[data-theme="dark"] .aboutFeatureItem { background: #252640; color: #e0e1f0; }
+        html[data-theme="dark"] .aboutLinkBtn { background: #20213a; border-color: #2e2f50; color: #b09eff; }
+        html[data-theme="dark"] .setFooterBtn { background: #20213a; border-color: #2e2f50; color: #e0e1f0; }
+        html[data-theme="dark"] .setFooterBtn.danger { color: #ff6b6b; }
+        html[data-theme="dark"] .optionItems { background: #20213a; border-color: #2e2f50; }
+        html[data-theme="dark"] .optionItem { color: #e0e1f0; }
+        html[data-theme="dark"] .optionItem:hover { background: #252640; }
+        html[data-theme="dark"] .fetchModelsBtn { border-color: #2e2f50; color: #8888aa; }
+        html[data-theme="dark"] .providerModelChip { background: #252640; border-color: #2e2f50; color: #b09eff; }
+        html[data-theme="dark"] #htmlPreviewBar { background: #14152a; border-color: #2e2f50; }
+        html[data-theme="dark"] #htmlPreviewBar span { color: #e0e1f0; }
+        html[data-theme="dark"] #langPanelHint, html[data-theme="dark"] #themePanelHint { color: #8888aa; }
+        html[data-theme="dark"] .switch-slide-label { background: #2e2f50; }
+        html[data-theme="dark"] input[type=range] { accent-color: #7c74ff; }
+        html[data-theme="dark"] .selectDef { color: #8888aa; }
+        html[data-theme="dark"] .justSetLine > div:first-child { color: #e0e1f0; }
+        html[data-theme="dark"] .inlineTitle { color: #e0e1f0; }
+        html[data-theme="dark"] #providerOption > div:first-child { color: #8888aa; }
+        html[data-theme="dark"] [style*="color:#1e1f2e"] { color: #e0e1f0 !important; }
+        html[data-theme="dark"] [style*="color: #1e1f2e"] { color: #e0e1f0 !important; }
+
+        /* ═══ 自然主题（绿） ══════════════════════════════════════════════════ */
+        html[data-theme="nature"] body { background-color: #edf5ee; }
+        html[data-theme="nature"] .chat_window { box-shadow: 0 8px 32px rgba(46,125,50,0.12), 0 2px 8px rgba(0,0,0,0.08); }
+        html[data-theme="nature"] .top_menu { background-color: #f0f8f1; border-color: #c0dcc2; }
+        html[data-theme="nature"] .nav { background-color: #f3faf4; border-color: #c0dcc2; }
+        html[data-theme="nature"] #chatlog .response { background: #ebf5ec; }
+        html[data-theme="nature"] .response .markdown-body { background: #ebf5ec !important; }
+        html[data-theme="nature"] .thinkingBlock { background: #f3faf4; border-color: #c0dcc2; }
+        html[data-theme="nature"] .thinkingHeader { background: #dff0e1; }
+        html[data-theme="nature"] .bottom_wrapper { border-color: #c0dcc2; }
+        html[data-theme="nature"] .message_input_text { background: #f0f8f1; border-color: #c0dcc2; }
+        html[data-theme="nature"] .message_input_text:focus { background: #dff0e1; border-color: #60b565; }
+        html[data-theme="nature"] #sendbutton { background-color: #60b565; }
+        html[data-theme="nature"] .activeSendBtn { background-color: #2e7d32 !important; }
+        html[data-theme="nature"] .activeSendBtn:hover { background-color: #1b5e20 !important; }
+        html[data-theme="nature"] #newChat:hover { background: #dff0e1 !important; }
+        html[data-theme="nature"] #newChat > svg { color: #2e7d32; }
+        html[data-theme="nature"] .chatLi:hover { background: #dff0e1; }
+        html[data-theme="nature"] .activeChatLi { background: #c8e6cb !important; }
+        html[data-theme="nature"] .setSwitch { background: #dff0e1; border-color: #c0dcc2; }
+        html[data-theme="nature"] .setSwitch > div:hover { background-color: #c8e6cb; color: #2e7d32; }
+        html[data-theme="nature"] .activeSwitch { background-color: #fff !important; color: #2e7d32 !important; }
+        html[data-theme="nature"] .thinkingBlock.done .thinkingDot { background: #2e7d32; }
+        html[data-theme="nature"] input[type=range] { accent-color: #2e7d32; }
+
+        /* ═══ 暖橙主题 ════════════════════════════════════════════════════════ */
+        html[data-theme="warm"] body { background-color: #fdf3e7; }
+        html[data-theme="warm"] .chat_window { box-shadow: 0 8px 32px rgba(217,119,6,0.12), 0 2px 8px rgba(0,0,0,0.08); }
+        html[data-theme="warm"] .top_menu { background-color: #fef7ee; border-color: #e8d0a0; }
+        html[data-theme="warm"] .nav { background-color: #fef9f2; border-color: #e8d0a0; }
+        html[data-theme="warm"] #chatlog .response { background: #fdf0e0; }
+        html[data-theme="warm"] .response .markdown-body { background: #fdf0e0 !important; }
+        html[data-theme="warm"] .thinkingBlock { background: #fef9f2; border-color: #e8d0a0; }
+        html[data-theme="warm"] .thinkingHeader { background: #fde8cc; }
+        html[data-theme="warm"] .bottom_wrapper { border-color: #e8d0a0; }
+        html[data-theme="warm"] .message_input_text { background: #fef7ee; border-color: #e8d0a0; }
+        html[data-theme="warm"] .message_input_text:focus { background: #fde8cc; border-color: #f59e0b; }
+        html[data-theme="warm"] #sendbutton { background-color: #f59e0b; }
+        html[data-theme="warm"] .activeSendBtn { background-color: #d97706 !important; }
+        html[data-theme="warm"] .activeSendBtn:hover { background-color: #b45309 !important; }
+        html[data-theme="warm"] #newChat:hover { background: #fde8cc !important; }
+        html[data-theme="warm"] #newChat > svg { color: #d97706; }
+        html[data-theme="warm"] .chatLi:hover { background: #fde8cc; }
+        html[data-theme="warm"] .activeChatLi { background: #fbdbaf !important; }
+        html[data-theme="warm"] .setSwitch { background: #fde8cc; border-color: #e8d0a0; }
+        html[data-theme="warm"] .setSwitch > div:hover { background-color: #fbdbaf; color: #d97706; }
+        html[data-theme="warm"] .activeSwitch { background-color: #fff !important; color: #d97706 !important; }
+        html[data-theme="warm"] .thinkingBlock.done .thinkingDot { background: #d97706; }
+        html[data-theme="warm"] input[type=range] { accent-color: #d97706; }
+
+        /* ═══ 海洋主题（蓝） ══════════════════════════════════════════════════ */
+        html[data-theme="ocean"] body { background-color: #e6f4fb; }
+        html[data-theme="ocean"] .chat_window { box-shadow: 0 8px 32px rgba(2,119,189,0.12), 0 2px 8px rgba(0,0,0,0.08); }
+        html[data-theme="ocean"] .top_menu { background-color: #eef7fd; border-color: #a0cce4; }
+        html[data-theme="ocean"] .nav { background-color: #f0f9fe; border-color: #a0cce4; }
+        html[data-theme="ocean"] #chatlog .response { background: #e4f2fa; }
+        html[data-theme="ocean"] .response .markdown-body { background: #e4f2fa !important; }
+        html[data-theme="ocean"] .thinkingBlock { background: #f0f9fe; border-color: #a0cce4; }
+        html[data-theme="ocean"] .thinkingHeader { background: #cde6f6; }
+        html[data-theme="ocean"] .bottom_wrapper { border-color: #a0cce4; }
+        html[data-theme="ocean"] .message_input_text { background: #eef7fd; border-color: #a0cce4; }
+        html[data-theme="ocean"] .message_input_text:focus { background: #cde6f6; border-color: #29b6f6; }
+        html[data-theme="ocean"] #sendbutton { background-color: #29b6f6; }
+        html[data-theme="ocean"] .activeSendBtn { background-color: #0277bd !important; }
+        html[data-theme="ocean"] .activeSendBtn:hover { background-color: #01579b !important; }
+        html[data-theme="ocean"] #newChat:hover { background: #cde6f6 !important; }
+        html[data-theme="ocean"] #newChat > svg { color: #0277bd; }
+        html[data-theme="ocean"] .chatLi:hover { background: #cde6f6; }
+        html[data-theme="ocean"] .activeChatLi { background: #b0d4ee !important; }
+        html[data-theme="ocean"] .setSwitch { background: #cde6f6; border-color: #a0cce4; }
+        html[data-theme="ocean"] .setSwitch > div:hover { background-color: #b0d4ee; color: #0277bd; }
+        html[data-theme="ocean"] .activeSwitch { background-color: #fff !important; color: #0277bd !important; }
+        html[data-theme="ocean"] .thinkingBlock.done .thinkingDot { background: #0277bd; }
+        html[data-theme="ocean"] input[type=range] { accent-color: #0277bd; }
+
+        /* ═══ 玫瑰主题（粉） ══════════════════════════════════════════════════ */
+        html[data-theme="rose"] body { background-color: #fdf0f5; }
+        html[data-theme="rose"] .chat_window { box-shadow: 0 8px 32px rgba(194,24,91,0.12), 0 2px 8px rgba(0,0,0,0.08); }
+        html[data-theme="rose"] .top_menu { background-color: #fef4f8; border-color: #f0b0d0; }
+        html[data-theme="rose"] .nav { background-color: #fef7fa; border-color: #f0b0d0; }
+        html[data-theme="rose"] #chatlog .response { background: #fde8f2; }
+        html[data-theme="rose"] .response .markdown-body { background: #fde8f2 !important; }
+        html[data-theme="rose"] .thinkingBlock { background: #fef7fa; border-color: #f0b0d0; }
+        html[data-theme="rose"] .thinkingHeader { background: #fbd9ea; }
+        html[data-theme="rose"] .bottom_wrapper { border-color: #f0b0d0; }
+        html[data-theme="rose"] .message_input_text { background: #fef4f8; border-color: #f0b0d0; }
+        html[data-theme="rose"] .message_input_text:focus { background: #fbd9ea; border-color: #f06292; }
+        html[data-theme="rose"] #sendbutton { background-color: #f06292; }
+        html[data-theme="rose"] .activeSendBtn { background-color: #c2185b !important; }
+        html[data-theme="rose"] .activeSendBtn:hover { background-color: #880e4f !important; }
+        html[data-theme="rose"] #newChat:hover { background: #fbd9ea !important; }
+        html[data-theme="rose"] #newChat > svg { color: #c2185b; }
+        html[data-theme="rose"] .chatLi:hover { background: #fbd9ea; }
+        html[data-theme="rose"] .activeChatLi { background: #f8c0d8 !important; }
+        html[data-theme="rose"] .setSwitch { background: #fbd9ea; border-color: #f0b0d0; }
+        html[data-theme="rose"] .setSwitch > div:hover { background-color: #f8c0d8; color: #c2185b; }
+        html[data-theme="rose"] .activeSwitch { background-color: #fff !important; color: #c2185b !important; }
+        html[data-theme="rose"] .thinkingBlock.done .thinkingDot { background: #c2185b; }
+        html[data-theme="rose"] input[type=range] { accent-color: #c2185b; }
     </style>
 </head>
 
@@ -2126,6 +2390,7 @@
                     <div data-id="speechOption">语音合成</div>
                     <div data-id="recOption">语音识别</div>
                     <div data-id="langOption">语言</div>
+                    <div data-id="themeOption">主题</div>
                     <div data-id="aboutOption">关于</div>
 					<div data-id="billingOption" onclick="checkOpenAICredit()" style="display:none;">账单</div>
                 </div>
@@ -2350,6 +2615,10 @@
                 <div id="langOption" style="display:none;">
                     <div id="langPanelHint" style="font-size:12px;color:#7b7d9a;margin-bottom:10px;">选择界面语言，立即生效</div>
                     <div id="langCards"></div>
+                </div>
+                <div id="themeOption" style="display:none;">
+                    <div id="themePanelHint" style="font-size:12px;color:#7b7d9a;margin-bottom:10px;">选择界面主题，立即生效</div>
+                    <div id="themeCards"></div>
                 </div>
                 <div id="aboutOption" style="display:none;">
                     <div class="aboutHeader">
@@ -3925,7 +4194,8 @@
                 inputPlaceholder:'来问点什么吧', clearConvTitle:'清空会话',
                 htmlPreview:'HTML 预览', settingsTitle:'设置', settingsSvgTitle:'设置',
                 tabModel:'模型', tabConv:'对话', tabSpeech:'语音合成',
-                tabRec:'语音识别', tabLang:'语言', tabAbout:'关于', tabBilling:'账单',
+                tabRec:'语音识别', tabLang:'语言', tabTheme:'主题', tabAbout:'关于', tabBilling:'账单',
+                themePanelHint:'选择界面主题，立即生效',
                 providerHint:'选择供应商，自动填充接口地址和模型列表',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'输入 API Key',
                 modelIdLabel:'模型 ID', fetchModelsTitle:'从供应商接口获取最新模型列表',
@@ -3955,7 +4225,8 @@
                 inputPlaceholder:'Ask me anything…', clearConvTitle:'Clear Chat',
                 htmlPreview:'HTML Preview', settingsTitle:'Settings', settingsSvgTitle:'Settings',
                 tabModel:'Models', tabConv:'Chat', tabSpeech:'Speech',
-                tabRec:'Voice', tabLang:'Language', tabAbout:'About', tabBilling:'Billing',
+                tabRec:'Voice', tabLang:'Language', tabTheme:'Theme', tabAbout:'About', tabBilling:'Billing',
+                themePanelHint:'Select a theme, takes effect immediately',
                 providerHint:'Select a provider to auto-fill API endpoint and model list',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'Enter API Key',
                 modelIdLabel:'Model ID', fetchModelsTitle:'Fetch latest model list from provider API',
@@ -3985,7 +4256,8 @@
                 inputPlaceholder:'來問點什麼吧', clearConvTitle:'清空會話',
                 htmlPreview:'HTML 預覽', settingsTitle:'設定', settingsSvgTitle:'設定',
                 tabModel:'模型', tabConv:'對話', tabSpeech:'語音合成',
-                tabRec:'語音辨識', tabLang:'語言', tabAbout:'關於', tabBilling:'帳單',
+                tabRec:'語音辨識', tabLang:'語言', tabTheme:'主題', tabAbout:'關於', tabBilling:'帳單',
+                themePanelHint:'選擇介面主題，立即生效',
                 providerHint:'選擇供應商，自動填入接口地址和模型清單',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'輸入 API Key',
                 modelIdLabel:'模型 ID', fetchModelsTitle:'從供應商接口取得最新模型清單',
@@ -4015,7 +4287,8 @@
                 inputPlaceholder:'質問してください…', clearConvTitle:'チャットをクリア',
                 htmlPreview:'HTMLプレビュー', settingsTitle:'設定', settingsSvgTitle:'設定',
                 tabModel:'モデル', tabConv:'チャット', tabSpeech:'音声合成',
-                tabRec:'音声入力', tabLang:'言語', tabAbout:'概要', tabBilling:'請求',
+                tabRec:'音声入力', tabLang:'言語', tabTheme:'テーマ', tabAbout:'概要', tabBilling:'請求',
+                themePanelHint:'テーマを選択してください、すぐに適用されます',
                 providerHint:'プロバイダーを選択してAPIエンドポイントとモデルリストを自動入力',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'API Keyを入力',
                 modelIdLabel:'モデルID', fetchModelsTitle:'プロバイダーから最新モデルリストを取得',
@@ -4045,7 +4318,8 @@
                 inputPlaceholder:'무엇이든 물어보세요…', clearConvTitle:'대화 지우기',
                 htmlPreview:'HTML 미리보기', settingsTitle:'설정', settingsSvgTitle:'설정',
                 tabModel:'모델', tabConv:'대화', tabSpeech:'음성합성',
-                tabRec:'음성입력', tabLang:'언어', tabAbout:'정보', tabBilling:'결제',
+                tabRec:'음성입력', tabLang:'언어', tabTheme:'테마', tabAbout:'정보', tabBilling:'결제',
+                themePanelHint:'테마를 선택하면 즉시 적용됩니다',
                 providerHint:'공급업체를 선택하면 API 엔드포인트와 모델 목록이 자동으로 입력됩니다',
                 apiKeyLabel:'API Key', apiKeyPlaceholder:'API Key 입력',
                 modelIdLabel:'모델 ID', fetchModelsTitle:'공급업체 API에서 최신 모델 목록 가져오기',
@@ -4075,7 +4349,8 @@
                 inputPlaceholder:'Posez votre question…', clearConvTitle:'Effacer la conversation',
                 htmlPreview:'Aperçu HTML', settingsTitle:'Paramètres', settingsSvgTitle:'Paramètres',
                 tabModel:'Modèles', tabConv:'Chat', tabSpeech:'Vocal',
-                tabRec:'Diction', tabLang:'Langue', tabAbout:'À propos', tabBilling:'Facturation',
+                tabRec:'Diction', tabLang:'Langue', tabTheme:'Thème', tabAbout:'À propos', tabBilling:'Facturation',
+                themePanelHint:'Sélectionnez un thème, effet immédiat',
                 providerHint:'Sélectionnez un fournisseur pour remplir automatiquement le point de terminaison',
                 apiKeyLabel:'Clé API', apiKeyPlaceholder:'Entrez la clé API',
                 modelIdLabel:'ID du modèle', fetchModelsTitle:'Récupérer la liste des modèles du fournisseur',
@@ -4105,7 +4380,8 @@
                 inputPlaceholder:'Stellen Sie eine Frage…', clearConvTitle:'Chat leeren',
                 htmlPreview:'HTML-Vorschau', settingsTitle:'Einstellungen', settingsSvgTitle:'Einstellungen',
                 tabModel:'Modelle', tabConv:'Chat', tabSpeech:'Sprache',
-                tabRec:'Erkennen', tabLang:'Sprache', tabAbout:'Über', tabBilling:'Rechnung',
+                tabRec:'Erkennen', tabLang:'Sprache', tabTheme:'Design', tabAbout:'Über', tabBilling:'Rechnung',
+                themePanelHint:'Design auswählen, sofort wirksam',
                 providerHint:'Anbieter wählen, um API-Endpunkt und Modellliste automatisch auszufüllen',
                 apiKeyLabel:'API-Schlüssel', apiKeyPlaceholder:'API-Schlüssel eingeben',
                 modelIdLabel:'Modell-ID', fetchModelsTitle:'Neueste Modellliste vom Anbieter abrufen',
@@ -4135,7 +4411,8 @@
                 inputPlaceholder:'Hazme una pregunta…', clearConvTitle:'Limpiar conversación',
                 htmlPreview:'Vista previa HTML', settingsTitle:'Configuración', settingsSvgTitle:'Configuración',
                 tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
-                tabRec:'Dictado', tabLang:'Idioma', tabAbout:'Acerca de', tabBilling:'Facturación',
+                tabRec:'Dictado', tabLang:'Idioma', tabTheme:'Tema', tabAbout:'Acerca de', tabBilling:'Facturación',
+                themePanelHint:'Seleccione un tema, se aplica inmediatamente',
                 providerHint:'Seleccione un proveedor para rellenar automáticamente el endpoint y los modelos',
                 apiKeyLabel:'Clave API', apiKeyPlaceholder:'Ingrese la clave API',
                 modelIdLabel:'ID del modelo', fetchModelsTitle:'Obtener lista de modelos del proveedor',
@@ -4165,7 +4442,8 @@
                 inputPlaceholder:'Задайте вопрос…', clearConvTitle:'Очистить чат',
                 htmlPreview:'Предпросмотр HTML', settingsTitle:'Настройки', settingsSvgTitle:'Настройки',
                 tabModel:'Модели', tabConv:'Чат', tabSpeech:'Синтез',
-                tabRec:'Голос', tabLang:'Язык', tabAbout:'О нас', tabBilling:'Оплата',
+                tabRec:'Голос', tabLang:'Язык', tabTheme:'Тема', tabAbout:'О нас', tabBilling:'Оплата',
+                themePanelHint:'Выберите тему, вступит в силу немедленно',
                 providerHint:'Выберите провайдера для автозаполнения API-эндпоинта и списка моделей',
                 apiKeyLabel:'API-ключ', apiKeyPlaceholder:'Введите API-ключ',
                 modelIdLabel:'ID модели', fetchModelsTitle:'Получить список моделей от провайдера',
@@ -4195,7 +4473,8 @@
                 inputPlaceholder:'Faça uma pergunta…', clearConvTitle:'Limpar conversa',
                 htmlPreview:'Pré-visualização HTML', settingsTitle:'Configurações', settingsSvgTitle:'Configurações',
                 tabModel:'Modelos', tabConv:'Chat', tabSpeech:'Voz',
-                tabRec:'Ditado', tabLang:'Idioma', tabAbout:'Sobre', tabBilling:'Faturação',
+                tabRec:'Ditado', tabLang:'Idioma', tabTheme:'Tema', tabAbout:'Sobre', tabBilling:'Faturação',
+                themePanelHint:'Selecione um tema, aplica-se imediatamente',
                 providerHint:'Selecione um provedor para preencher automaticamente o endpoint e a lista de modelos',
                 apiKeyLabel:'Chave API', apiKeyPlaceholder:'Insira a chave API',
                 modelIdLabel:'ID do modelo', fetchModelsTitle:'Obter lista de modelos mais recente do provedor',
@@ -4562,7 +4841,7 @@
             if (setTitle) setTitle.textContent = t.settingsTitle;
 
             // Tabs
-            const tabMap = {providerOption:t.tabModel, convOption:t.tabConv, speechOption:t.tabSpeech, recOption:t.tabRec, langOption:t.tabLang, aboutOption:t.tabAbout};
+            const tabMap = {providerOption:t.tabModel, convOption:t.tabConv, speechOption:t.tabSpeech, recOption:t.tabRec, langOption:t.tabLang, themeOption:t.tabTheme, aboutOption:t.tabAbout};
             for (const [id, text] of Object.entries(tabMap)) {
                 const tab = document.querySelector(`.setSwitch [data-id="${id}"]`);
                 if (tab) tab.textContent = text;
@@ -4725,11 +5004,59 @@
             const langPanelHintEl = document.getElementById('langPanelHint');
             if (langPanelHintEl) langPanelHintEl.textContent = t.langPanelHint;
 
+            // Theme panel hint
+            const themePanelHintEl = document.getElementById('themePanelHint');
+            if (themePanelHintEl) themePanelHintEl.textContent = t.themePanelHint;
+
             // Update card highlight
             document.querySelectorAll('.langCard').forEach(c => {
                 c.classList.toggle('activeLang', c.dataset.lang === lang);
             });
         };
+
+        // ── applyTheme / initThemeSetting ─────────────────────────────────
+        const THEMES = [
+            { id: 'light',  nameZh:'浅色', dots:['#f0f2f8','#6c63ff','#a78bfa'] },
+            { id: 'dark',   nameZh:'深色', dots:['#1a1b2e','#7c74ff','#b09eff'] },
+            { id: 'nature', nameZh:'自然', dots:['#edf5ee','#2e7d32','#60b565'] },
+            { id: 'warm',   nameZh:'暖橙', dots:['#fdf3e7','#d97706','#f59e0b'] },
+            { id: 'ocean',  nameZh:'海洋', dots:['#e6f4fb','#0277bd','#29b6f6'] },
+            { id: 'rose',   nameZh:'玫瑰', dots:['#fdf0f5','#c2185b','#f06292'] },
+        ];
+        let currentTheme = 'light';
+
+        const applyTheme = (themeId) => {
+            currentTheme = themeId;
+            localStorage.setItem('uiTheme', themeId);
+            if (themeId === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', themeId);
+            }
+            document.querySelectorAll('.themeCard').forEach(c => {
+                c.classList.toggle('activeTheme', c.dataset.theme === themeId);
+            });
+        };
+
+        const initThemeSetting = () => {
+            const container = document.getElementById('themeCards');
+            if (!container) return;
+            container.innerHTML = '';
+            THEMES.forEach(th => {
+                const card = document.createElement('div');
+                card.className = 'themeCard';
+                card.dataset.theme = th.id;
+                const dotsHtml = th.dots.map(c => `<div class="themeDot" style="background:${c}"></div>`).join('');
+                card.innerHTML = `<div class="themePalette">${dotsHtml}</div>
+                    <div class="themeInfo"><div class="themeName">${th.nameZh}</div></div>
+                    <div class="themeCheck"></div>`;
+                card.onclick = () => applyTheme(th.id);
+                container.appendChild(card);
+            });
+            const saved = localStorage.getItem('uiTheme') || 'light';
+            applyTheme(saved);
+        };
+        // ─────────────────────────────────────────────────────────────────────
 
         // ── initLangSetting ───────────────────────────────────────────────
         const initLangSetting = () => {
@@ -4758,6 +5085,7 @@
         // ────────────────────────────────────────────────────────────────
         initSetting();
         initProviderSetting();
+        initThemeSetting();
         initLangSetting();
         document.getElementById("loadMask").style.display = "none";
         const openSettingDialog = () => {
